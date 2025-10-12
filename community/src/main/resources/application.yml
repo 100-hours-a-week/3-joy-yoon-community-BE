@@ -1,0 +1,21 @@
+jwt:
+  secret: "m0R4q7Y2Q4sH9p2P0s1tH3bD9vM7qP1kA4vL0nM8qQ0rC5yX3fS9eW=="
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/COMMUNITY_DB?serverTimezone=UTC&useSSL=false
+    username: root
+    password: kakaotech!234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none   # ?? ??? create / create-drop / update ? ??
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
