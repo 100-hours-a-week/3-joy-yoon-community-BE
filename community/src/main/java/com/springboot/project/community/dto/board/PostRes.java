@@ -7,12 +7,15 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class PostRes {
+    private Long postId;
 
     @NotBlank(message = "제목은 반드시 입력해야 합니다.")
     private String title;
@@ -21,4 +24,9 @@ public class PostRes {
     private String contents;
 
     private String imageUrl;
+
+    private String author;
+
+    private LocalDateTime createdAt;
+
 }

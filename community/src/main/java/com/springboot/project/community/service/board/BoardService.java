@@ -24,8 +24,8 @@ public class BoardService {
 
         Board board = Board.builder()
                 .author(author)
-                .title(req.getTitle())       // ✅ 수정
-                .contents(req.getContents()) // ✅ 수정
+                .title(req.getTitle())
+                .contents(req.getContents())
                 .build();
 
         boardRepository.save(board);

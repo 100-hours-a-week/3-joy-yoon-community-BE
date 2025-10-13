@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 /**
  *  게시글 작성/수정 요청 DTO
  */
@@ -16,6 +18,7 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class PostCreateReq {
+    private Long postId;
 
     @NotBlank(message = "제목은 필수입니다.")
     private String title;
@@ -24,4 +27,9 @@ public class PostCreateReq {
     private String contents;
 
     private String imageUrl;
+
+    private String author;
+
+    private LocalDateTime createdAt;
+
 }
