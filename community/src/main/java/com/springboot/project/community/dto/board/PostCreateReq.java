@@ -1,7 +1,11 @@
 package com.springboot.project.community.dto.board;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 /**
  *  게시글 작성/수정 요청 DTO

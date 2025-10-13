@@ -19,12 +19,15 @@ public class BoardService {
 
     @Transactional
     public PostRes create(Long userId, PostCreateReq req) {
-        User author = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("작성자 없음"));
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("작성자 없음"));
+
         Board board = Board.builder()
                 .author(author)
-                .title(req.title())
-                .contents(req.contents())
+                .title(req.getTitle())       // ✅ 수정
+                .contents(req.getContents()) // ✅ 수정
                 .build();
+
         boardRepository.save(board);
 
         boardStatsRepository.save(BoardStats.builder()
