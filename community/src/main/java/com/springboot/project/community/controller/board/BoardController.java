@@ -2,13 +2,13 @@ package com.springboot.project.community.controller.board;
 
 import com.springboot.project.community.dto.board.PostCreateReq;
 import com.springboot.project.community.dto.board.PostRes;
-import com.springboot.project.community.entity.Board;
+import com.springboot.project.community.dto.board.PostUpdateReq;
 import com.springboot.project.community.service.board.BoardService;
 import java.util.List;
 
+import jakarta.persistence.PostUpdate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,21 +33,22 @@ public class BoardController {
         return boardService.create(userId, req);
     }
 
-//    /**
-//     * 게시글 수정
-//     */
-//    @PutMapping
-//    public PostUpdateRes createPost(
-//            @RequestParam Long userId,
-//            @RequestBody @Valid PostCreateReq req) {
-//        return boardService.create(userId, req);
-//    }
+    /**
+     * 게시글 수정
+     */
+    @PutMapping("/{userId}/{postId}")
+    public PostRes updatePost(
+            @PathVariable Long userId,
+            @PathVariable Long postId,
+            @RequestBody PostUpdateReq req) {
+        return boardService.update(userId, postId, req);
+    }
 
     /**
      * 게시글 목록 조회
      */
     @GetMapping
-    public List<Board> getAllPosts() {
+    public List<PostRes> getAllPosts() {
         return boardService.findAll();
     }
 }

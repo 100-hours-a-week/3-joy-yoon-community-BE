@@ -1,25 +1,23 @@
 package com.springboot.project.community.dto.board;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- *  게시글 작성/수정 요청 DTO
+ * 게시글 수정 요청 DTO
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostCreateReq {
-    private Long postId;
+public class PostUpdateReq {
 
     @NotBlank(message = "제목은 필수입니다.")
     private String title;
@@ -27,9 +25,6 @@ public class PostCreateReq {
     @NotBlank(message = "내용은 필수입니다.")
     private String contents;
 
-    /** 이미지 URL 리스트 (1~10장) */
+    /** 새 이미지 URL 리스트 (기존 이미지 전부 교체됨) */
     private List<String> imageUrls;
-
-    private LocalDateTime createdAt;
-
 }
