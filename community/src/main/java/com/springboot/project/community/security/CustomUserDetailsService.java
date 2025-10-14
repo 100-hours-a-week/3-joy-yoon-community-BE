@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * ✅ Spring Security 규약에 맞춘 사용자 조회 서비스
+ *  Spring Security 규약에 맞춘 사용자 조회 서비스
  *
  * - loadUserByUsername(String username)는 통상적으로 "이메일"을 의미하도록 사용하는 것이 일반적입니다.
  * - DB에서 이메일로 User 엔티티를 조회하여 CustomUserDetails로 감싸 반환합니다.
@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     /**
-     * ✅ 이메일을 이용해 사용자 정보를 로드
+     *  이메일을 이용해 사용자 정보를 로드
      * @param email 인증 시 사용되는 이메일(=username)
      * @return UserDetails (CustomUserDetails)
      * @throws UsernameNotFoundException 이메일을 찾지 못한 경우

@@ -23,7 +23,7 @@ public class BoardStats {
     @Column(name = "post_id", columnDefinition = "BIGINT UNSIGNED")
     private Long postId;
 
-    // ✅ 명시적으로 Board를 참조 (FK 명시)
+    //  명시적으로 Board를 참조 (FK 명시)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "post_id", // BoardStats.post_id

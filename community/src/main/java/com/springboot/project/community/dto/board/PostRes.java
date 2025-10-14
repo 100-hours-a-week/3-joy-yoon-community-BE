@@ -9,6 +9,9 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+/**
+ *  게시글 응답 DTO
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -8,7 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 /**
- * ✅ 모든 Entity에서 공통으로 사용하는 생성일/수정일 관리용 추상 클래스
+ *  모든 Entity에서 공통으로 사용하는 생성일/수정일 관리용 추상 클래스
  */
 @Getter
 @MappedSuperclass

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * ✅ 좋아요 토글 응답 DTO
+ *  좋아요 토글 응답 DTO
  * - 사용자가 좋아요를 눌렀는지 여부와 현재 좋아요 수를 반환
  */
 @Getter

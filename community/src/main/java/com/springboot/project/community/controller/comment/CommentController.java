@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * ✅ 댓글 관련 컨트롤러
+ *  댓글 관련 컨트롤러
  * - 댓글 작성 / 게시글별 댓글 조회
  */
 @RestController

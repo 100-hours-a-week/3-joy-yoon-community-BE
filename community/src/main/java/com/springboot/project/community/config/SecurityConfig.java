@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 ///**
-// * ✅ JWT 전용 Spring Security 설정
+// *  JWT 전용 Spring Security 설정
 // * - JwtAuthFilter 제거
 // * - AuthenticationProvider 기반으로 Bearer Token 인증 수행
 // * - Stateless (세션 미사용)

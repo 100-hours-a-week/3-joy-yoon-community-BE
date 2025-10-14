@@ -6,7 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * ✅ PasswordEncoder Bean만 남기고 Security는 비활성화
+ *  PasswordEncoder Bean만 남기고 Security는 비활성화
  */
 @Configuration
 public class PasswordConfig {
