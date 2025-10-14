@@ -3,6 +3,7 @@ package com.springboot.project.community.service.auth;
 import com.springboot.project.community.dto.auth.UserLoginReq;
 import com.springboot.project.community.dto.auth.UserRes;
 import com.springboot.project.community.dto.auth.UserSignupReq;
+import com.springboot.project.community.dto.auth.UserUpdateReq;
 import com.springboot.project.community.entity.User;
 import com.springboot.project.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -72,4 +73,23 @@ public class AuthService {
                 .build();
     }
 
+    /**
+     * 회원정보 수정
+     */
+    @Transactional
+    public User updateUser(Long userId, UserUpdateReq req) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (req.getNickname() != null && !req.getNickname().isBlank()) {
+            user.setNickname(req.getNickname());
+        }
+
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+
+        return user;
+    }
 }

@@ -1,13 +1,11 @@
 package com.springboot.project.community.controller.auth;
 
-import com.springboot.project.community.dto.auth.TokenRes;
-import com.springboot.project.community.dto.auth.UserLoginReq;
-import com.springboot.project.community.dto.auth.UserRes;
-import com.springboot.project.community.dto.auth.UserSignupReq;
+import com.springboot.project.community.dto.auth.*;
 import com.springboot.project.community.repository.UserRepository;
 import com.springboot.project.community.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.springboot.project.community.entity.User;
@@ -52,6 +50,17 @@ public class AuthController {
 
         // 저장 후 반환
         return userRepository.save(user);
+    }
+    /**
+     * 회원 정보 수정
+     */
+    @PutMapping("/{userId}")
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateReq req) {
+
+        User updatedUser = authService.updateUser(userId, req);
+        return ResponseEntity.ok(updatedUser);
     }
 
     /**

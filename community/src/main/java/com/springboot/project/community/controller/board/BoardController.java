@@ -33,6 +33,16 @@ public class BoardController {
         return boardService.create(userId, req);
     }
 
+//    /**
+//     * 게시글 수정
+//     */
+//    @PutMapping
+//    public PostUpdateRes createPost(
+//            @RequestParam Long userId,
+//            @RequestBody @Valid PostCreateReq req) {
+//        return boardService.create(userId, req);
+//    }
+
     /**
      * 게시글 목록 조회
      */
