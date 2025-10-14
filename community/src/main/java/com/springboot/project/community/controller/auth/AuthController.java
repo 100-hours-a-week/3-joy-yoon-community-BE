@@ -55,16 +55,8 @@ public class AuthController {
     }
 
     /**
-     * 로그인 → JWT 토큰 발급
+     * 로그인
      */
-//    @GetMapping
-//    public TokenRes login(@RequestBody @Valid UserLoginReq req) {
-//        return authService.login(req);
-//    }
-//    @PostMapping("/login")
-//    public UserRes login(@RequestBody LoginReq req) {
-//        return authService.login(req);
-//    }
     @PostMapping("/login")
     public UserRes login(@RequestBody UserLoginReq req) {
         return authService.login(req);  //  반환 타입 일치 (UserRes)

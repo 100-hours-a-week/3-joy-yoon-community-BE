@@ -28,8 +28,6 @@ public class PostCreateReq {
 
     private String imageUrl;
 
-    private String author;
-
     private LocalDateTime createdAt;
 
 }
