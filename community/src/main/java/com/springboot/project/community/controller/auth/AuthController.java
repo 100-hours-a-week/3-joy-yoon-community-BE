@@ -9,10 +9,7 @@ import com.springboot.project.community.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.springboot.project.community.entity.User;
 
 
@@ -20,6 +17,7 @@ import com.springboot.project.community.entity.User;
  *  인증 관련 컨트롤러
  * - 회원가입 / 로그인 / JWT 발급
  */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -33,8 +31,8 @@ public class AuthController {
     /**
      *  회원가입 기능
      */
-    public User signup(UserSignupReq req) {
-
+    @PostMapping
+    public User signup(@RequestBody @Valid UserSignupReq req) {
         // 이메일 중복 검사
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -59,9 +57,18 @@ public class AuthController {
     /**
      * 로그인 → JWT 토큰 발급
      */
-//    @PostMapping("/login")
+//    @GetMapping
 //    public TokenRes login(@RequestBody @Valid UserLoginReq req) {
 //        return authService.login(req);
 //    }
+//    @PostMapping("/login")
+//    public UserRes login(@RequestBody LoginReq req) {
+//        return authService.login(req);
+//    }
+    @PostMapping("/login")
+    public UserRes login(@RequestBody UserLoginReq req) {
+        return authService.login(req);  //  반환 타입 일치 (UserRes)
+    }
+
 }
 

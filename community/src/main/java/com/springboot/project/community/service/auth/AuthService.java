@@ -71,4 +71,5 @@ public class AuthService {
                 .nickname(user.getNickname())
                 .build();
     }
+
 }

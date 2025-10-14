@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface BoardLikeRepository extends JpaRepository<BoardLike, BoardLikeId> {
     long countByBoard_PostIdAndDeletedFalse(Long postId);
-    boolean existsByIdAndDeletedFalse(BoardLikeId id);
+    boolean existsByLikeIdAndDeletedFalse(BoardLikeId likeId);
 }
