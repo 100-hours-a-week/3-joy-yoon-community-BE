@@ -46,6 +46,7 @@ public class BoardLike {
     private Board board;
 
     /** 좋아요 상태 (삭제 대신 토글) */
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;  // Lombok이 isDeleted() 게터 생성
 

@@ -32,12 +32,15 @@ public class BoardStats {
     )
     private Board board;
 
+    @Builder.Default
     @Column(name = "view_count", nullable = false)
     private Long viewCount = 0L;
 
+    @Builder.Default
     @Column(name = "like_count", nullable = false)
     private Long likeCount = 0L;
 
+    @Builder.Default
     @Column(name = "comment_count", nullable = false)
     private Long commentCount = 0L;
 }
