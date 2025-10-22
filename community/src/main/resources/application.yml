@@ -2,6 +2,13 @@ jwt:
   secret: "m0R4q7Y2Q4sH9p2P0s1tH3bD9vM7qP1kA4vL0nM8qQ0rC5yX3fS9eW=="
 
 spring:
+  thymeleaf:
+    prefix: classpath:templates/thymeleaf/
+    check-template-location: true
+    suffix : .html
+    mode: HTML
+    cache: false # default true, 개발 시에는 false로 두는 것이 좋음
+    enabled: true
   datasource:
     url: jdbc:mysql://localhost:3306/COMMUNITY_DB?serverTimezone=UTC&useSSL=false
     username: root
