@@ -1,6 +1,7 @@
 package com.springboot.project.community.entity;
 
 import java.time.LocalDateTime;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,7 +40,9 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String nickname;
 
-    @Column(length = 255)
+    // Base64 이미지 문자열을 저장하기 때문에 TEXT 타입으로 변경
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String image;
 
     @Column(name = "use_yn", columnDefinition = "TINYINT(1) DEFAULT 0")

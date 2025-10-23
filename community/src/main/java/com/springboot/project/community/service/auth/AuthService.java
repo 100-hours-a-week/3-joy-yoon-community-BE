@@ -92,4 +92,18 @@ public class AuthService {
 
         return user;
     }
+
+    /**
+     * 닉네임 사용 가능 여부 확인
+     */
+    public boolean isNicknameAvailable(String nickname) {
+        return !userRepository.existsByNickname(nickname);
+    }
+
+    /**
+     * 닉네임 사용 가능 여부 확인
+     */
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
 }

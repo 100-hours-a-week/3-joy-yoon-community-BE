@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.springboot.project.community.entity.User;
 
+import java.util.Map;
+
 
 /**
  *  인증 관련 컨트롤러
@@ -51,6 +53,7 @@ public class AuthController {
         // 저장 후 반환
         return userRepository.save(user);
     }
+
     /**
      * 회원 정보 수정
      */
@@ -71,5 +74,22 @@ public class AuthController {
         return authService.login(req);  //  반환 타입 일치 (UserRes)
     }
 
+    /*
+    * 닉네임 중복 검사
+    */
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Map<String, Object>> checkNickname(@RequestParam String nickname) {
+        boolean available = authService.isNicknameAvailable(nickname);
+        return ResponseEntity.ok(Map.of("available", available));
+    }
+
+    /*
+     * 이메일 중복 검사
+     */
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Object>> checkEmail(@RequestParam String email) {
+        boolean available = authService.isNicknameAvailable(email);
+        return ResponseEntity.ok(Map.of("available", available));
+    }
 }
 
