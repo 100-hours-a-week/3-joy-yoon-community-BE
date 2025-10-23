@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>게시판</title>
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<header style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>게시판</h1>
+    <div>
+        <a href="/signup">회원가입</a>
+        <a href="/login">로그인</a>
+    </div>
+</header>
+
+<section class="posts" id="postsContainer"></section>
+<script>
+    fetch("layout.html")
+      .then(res => res.text())
+      .then(layout => {
+        document.body.innerHTML = layout;
+        const main = document.getElementById("content");
+        const page = document.getElementById("page-content");
+        main.innerHTML = page.innerHTML;
+      });
+</script>
+<script src="/js/posts.js"></script>
+</body>
+</html>

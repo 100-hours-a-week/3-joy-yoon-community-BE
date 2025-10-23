@@ -1,0 +1,241 @@
+header {
+  background: white;        /* 배경색 → 흰색 */
+  color: black;             /* 글자색 → 검은색 */
+  padding: 24px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* 가운데 정렬 */
+  text-align: center;
+  font-family: "맑은 고딕", sans-serif;
+  border-bottom: 1px solid #999;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+header nav a {
+  color: black;             /* 링크 색상도 검은색으로 */
+  margin-left: 18px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+  background: linear-gradient(180deg, #f7f9fc, white);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: block;     /* flex 제거 */
+}
+
+/* 로그인 전체 묶음 (제목 + 카드) */
+.login-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;           /* 제목과 카드 사이 간격을 줄임 */
+  max-width: 360px;    /* 전체 폭 제한 */
+  width: 100%;
+  padding: 20px;       /* 전체 여백 축소 */
+  box-sizing: border-box;
+}
+/* 제목 스타일 */
+.login-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+.helper-text {
+  color: #e53935;          /* 빨간색 */
+  font-size: 12px;         /* 작고 얇은 글씨 */
+  margin-top: 4px;         /* input 아래 4px 간격 */
+  margin-bottom: 20px;        /* 불필요한 간격 제거 */
+  font-weight: 400;
+  display:none;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #ACA0EB;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.active {
+  background-color: #7F6AEE;  /* 로그인 유효 시 색상 변경 */
+  cursor: pointer;
+}
+
+.card {
+  background: transparent; /* 배경색 제거 (하얀 상자 없앰) */
+  border: none;
+  border-radius: 10px;
+  padding: 25px 30px;
+  box-shadow: none;        /* 그림자도 제거하면 완전히 배경과 동일 */
+  width: 340px;
+}
+
+p {
+  margin-top: 0;
+  color: #475569;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid #e6eef8;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+
+.link {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.link a {
+  color: #000000;
+  text-decoration: none;
+}
+/* .container 위치 설정 추가 */
+.container {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* 가로 중앙 */
+  align-items: center;     /* 세로 중앙 */
+  padding: 160px;
+}
+aside {
+  background: white; border-radius: 10px; padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+footer {
+    background: white;
+    padding: 16px 24px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+    border-top: 1px solid #ddd;
+}
+/* signup wrap */
+.signup-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+/* 프로필 업로드 영역 */
+.profile-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.profile-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  border: 2px dashed #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.profile-circle:hover {
+  border-color: #7f6aee;
+}
+.profile-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.plus-icon {
+  font-size: 40px;
+  color: #aaa;
+  pointer-events: none;
+}
+#profileHelper {
+  color: #e53935;
+  font-size: 12px;
+  margin-top: 4px;
+  visibility: visible; /* 기본 표시 */
+}
+
+
+/* 이미지 미리보기 */
+#imgPreview {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+#imgPreview img {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  object-fit: cover;
+}
+
+#removeImage {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+}
+
+#submitMsg {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #334155;
+  display: none;
+}
+
+.main-header {
+  position: relative;
+  text-align: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+}
+
+.back-btn {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-decoration: none;
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+.back-btn:hover {
+  color: #007bff;
+}
