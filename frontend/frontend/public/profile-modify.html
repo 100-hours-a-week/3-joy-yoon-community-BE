@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>커뮤니티</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>회원정보 수정</h1>
+    <div class="profile-menu">
+      <div class="profile-circle" id="profileCircle">
+        <img id="profileImage" src="" alt="프로필" />
+      </div>
+      <ul class="dropdown" id="dropdownMenu">
+        <li><a href="/profile">회원정보수정</a></li>
+        <li><a href="/change-password">비밀번호수정</a></li>
+        <li><a href="/logout">로그아웃</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="profile-container">
+    <div class="email-section">
+      <strong>이메일</strong>
+      <p id="userEmail">user@example.com</p>
+    </div>
+
+    <div class="nickname-section">
+      <label for="nickname">닉네임 수정</label>
+      <input type="text" id="nickname" placeholder="새 닉네임을 입력하세요" />
+      <p class="helper-text" id="nicknameError"></p>
+      <button id="updateBtn" class="btn" disabled>수정하기</button>
+    </div>
+
+    <div class="withdraw-section">
+      <button id="withdrawBtn" class="withdraw">회원 탈퇴</button>
+    </div>
+  </main>
+
+  <!-- 회원탈퇴 확인 모달 -->
+  <div class="modal" id="withdrawModal">
+    <div class="modal-content">
+      <p>정말로 회원을 탈퇴하시겠습니까?</p>
+      <div class="modal-actions">
+        <button id="confirmWithdraw" class="confirm">확인</button>
+        <button id="cancelWithdraw" class="cancel">취소</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toastMsg">수정 완료</div>
+  <script src="/js/profileModify.js"></script>
+  <link rel="stylesheet" href="/css/profile.css">
+
+  <footer>
+    © 2025 My Community —
+    <a href="http://localhost:8080/service">이용약관 index</a> ·
+    <a href="http://localhost:8080/privacy">개인정보처리방침</a>
+  </footer>
+</body>
+</html>

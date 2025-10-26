@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>커뮤니티</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>아무 말 대잔치</h1>
+  </header>
+
+  <div class="container">
+    <!-- 페이지별 본문이 여기에 들어감 -->
+    <div id="content"></div>
+  </div>
+
+  <footer>
+    © 2025 My Community —
+    <a href="http://localhost:8080/service">이용약관 index</a> ·
+    <a href="http://localhost:8080/privacy">개인정보처리방침</a>
+  </footer>
+
+  <script>
+    // layout.html 공통 스크립트
+    // URL path에 따라 자동으로 해당 HTML 본문 로드
+    document.addEventListener("DOMContentLoaded", async () => {
+      const path = window.location.pathname;
+      let page = "";
+
+      if (path === "/signup") {
+        page = "/signup.html";
+      } else if (path === "/login") {
+        page = "/login.html";
+      } else if (path === "/profileModify") {
+        page = "/profileModify.html";
+      } else if (path === "/changePassword") {
+        page = "/changePassword.html";
+      } else if (path === "/postCreate") {
+        page = "/postCreate.html";
+      } else {
+        page = "/partials/404.html"; // 기본값
+      }
+
+      const res = await fetch(page);
+      const html = await res.text();
+      document.getElementById("content").innerHTML = html;
+    });
+  </script>
+</body>
+</html>

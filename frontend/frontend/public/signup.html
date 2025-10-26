@@ -1,0 +1,42 @@
+<div class="signup-wrap">
+  <h1 class="signup-title">회원가입</h1>
+  <main class="card">
+    <form id="signupForm">
+      <label for="profileImage">프로필 사진</label>
+      <p class="helper-text" id="profileHelper">프로필 사진을 추가해주세요.</p>
+      <div class="profile-upload">
+        <input type="file" id="profileImage" accept="image/*" hidden />
+        <div class="profile-circle" id="profilePreview">
+          <span class="plus-icon">+</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">이메일 *</label>
+        <input id="email" placeholder="이메일을 입력하세요" name="email" type="email" required />
+        <p class="helper-text" id="emailError"></p>
+      </div>
+      <div class="form-group">
+        <label for="password">비밀번호 *</label>
+        <input id="password" name="password" type="password" placeholder="비밀번호를 입력하세요" required />
+        <p class="helper-text" id="passwordError"></p>
+      </div>
+      <div class="form-group">
+        <label for="passwordConfirm">비밀번호 확인 *</label>
+        <input id="passwordConfirm" name="passwordConfirm" type="password" placeholder="비밀번호를 한번 더 입력하세요" required />
+        <p class="helper-text" id="passwordConfirmError"></p>
+      </div>
+      <div class="form-group">
+        <label for="nickname">닉네임 *</label>
+        <input id="nickname" name="nickname" type="text" placeholder="닉네임을 입력하세요" required />
+        <p class="helper-text" id="nicknameError"></p>
+      </div>
+      <button class="btn" type="submit">회원가입</button>
+      <p id="submitMsg" class="helper-text" style="display:none;"></p>
+    </form>
+
+    <div class="link">
+      <a href="/login">로그인하러 가기</a>
+    </div>
+  </main>
+</div>
+<script src="/js/signup.js"></script>
