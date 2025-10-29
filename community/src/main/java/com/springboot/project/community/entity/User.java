@@ -1,23 +1,22 @@
 package com.springboot.project.community.entity;
 
 import java.time.LocalDateTime;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  *  사용자 엔티티 (USERS)
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "USERS")
 @Getter
 @Setter
@@ -48,9 +47,11 @@ public class User {
     @Column(name = "use_yn", columnDefinition = "TINYINT(1) DEFAULT 0")
     private Boolean useYn;
 
+    @CreatedDate
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 }

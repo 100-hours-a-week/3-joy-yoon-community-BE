@@ -1,19 +1,15 @@
 package com.springboot.project.community.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * 좋아요 (BOARD_LIKE)
@@ -21,6 +17,7 @@ import lombok.Setter;
  * - 삭제 대신 is_deleted 토글
  */
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "BOARD_LIKE")
 @Getter
 @Setter
@@ -51,6 +48,7 @@ public class BoardLike {
     private boolean deleted = false;  // Lombok이 isDeleted() 게터 생성
 
     /** 수정시각 (DB default/on update를 그대로 사용) */
+    @LastModifiedDate
     @Column(name = "updated_at",
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
