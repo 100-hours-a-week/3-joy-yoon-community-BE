@@ -1,20 +1,18 @@
 package com.springboot.project.community.controller.auth;
 
-import com.springboot.project.community.dto.auth.*;
+import com.springboot.project.community.dto.auth.UserLoginReq;
+import com.springboot.project.community.dto.auth.UserRes;
+import com.springboot.project.community.dto.auth.UserSignupReq;
+import com.springboot.project.community.dto.auth.UserUpdateReq;
+import com.springboot.project.community.entity.User;
 import com.springboot.project.community.repository.UserRepository;
-import com.springboot.project.community.service.auth.AuthService;
-import com.springboot.project.community.service.auth.SessionService;
 import com.springboot.project.community.service.auth.UserService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.springboot.project.community.entity.User;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -28,90 +26,73 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
-    private final SessionService sessionService;
+    private final UserService userService;
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    /**
+     *  회원가입 기능
+     */
+    @PostMapping
+    public User signup(@RequestBody @Valid UserSignupReq req) {
+        // 이메일 중복 검사
+        if (userRepository.findByEmail(req.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+
+        // 패스워드 암호화
+        String encodedPassword = passwordEncoder.encode(req.getPassword());
+
+        // User 엔티티 생성
+        User user = User.builder()
+                .email(req.getEmail())
+                .password(encodedPassword)
+                .nickname(req.getNickname())
+                .image(req.getImage())
+                .useYn(false)
+                .build();
+
+        // 저장 후 반환
+        return userRepository.save(user);
+    }
+
+    /**
+     * 회원 정보 수정
+     */
+    @PutMapping("/{userId}")
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateReq req) {
+
+        User updatedUser = userService.updateUser(userId, req);
+        return ResponseEntity.ok(updatedUser);
+    }
 
     /**
      * 로그인
-     * POST /api/v1/auth/login
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(
-            @Valid @RequestBody UserLoginReq loginRequest,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-        User user = authService.login(
-                loginRequest.getEmail(),
-                loginRequest.getPassword(),
-                loginRequest.isRememberMe(),
-                request,
-                response
-        );
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "로그인 성공");
-        result.put("user", Map.of(
-                "id", user.getUserId(),
-                "email", user.getEmail(),
-                "nickname", user.getNickname()
-        ));
-        return ResponseEntity.ok(result);
+    public UserRes login(@RequestBody UserLoginReq req) {
+        return userService.login(req);  //  반환 타입 일치 (UserRes)
     }
 
-    /**
-     * 로그아웃
-     * POST /api/v1/auth/logout
-     */
-    @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        authService.logout(request, response);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "로그아웃 성공");
-
-        return ResponseEntity.ok(result);
+    /*
+    * 닉네임 중복 검사
+    */
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Map<String, Object>> checkNickname(@RequestParam String nickname) {
+        boolean available = userService.isNicknameAvailable(nickname);
+        return ResponseEntity.ok(Map.of("available", available));
     }
 
-    /**
-     * 현재 로그인 사용자 정보 조회
-     * GET /api/v1/auth
+    /*
+     * 이메일 중복 검사
      */
-    @GetMapping
-    public ResponseEntity<?> getCurrenUser(HttpServletRequest request) {
-        return sessionService.getLoginUser(request)
-                .map(user -> {
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("success", true);
-                    result.put("user", Map.of(
-                            "id", user.getUserId(),
-                            "email", user.getEmail(),
-                            "nickname", user.getNickname()
-                    ));
-                    return ResponseEntity.ok(result);
-                })
-                .orElse(ResponseEntity.status(401)
-                        .body(Map.of(
-                                "success", false,
-                                "message", "로그인이 필요합니다."
-                        )));
-    }
-
-    /**
-     * 세션 확인
-     * GET /api/v1/auth/check
-     */
-    @GetMapping("/check")
-    public ResponseEntity<Map<String, Object>> checkSession(HttpServletRequest request) {
-        boolean isLoggedIn = sessionService.isLoggedIn(request);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("isLoggedIn", isLoggedIn);
-
-        return ResponseEntity.ok(result);
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Object>> checkEmail(@RequestParam String email) {
+        boolean available = userService.isNicknameAvailable(email);
+        return ResponseEntity.ok(Map.of("available", available));
     }
 }
+
