@@ -1,109 +1,120 @@
 package com.springboot.project.community.service.auth;
 
-import com.springboot.project.community.dto.auth.UserLoginReq;
-import com.springboot.project.community.dto.auth.UserRes;
-import com.springboot.project.community.dto.auth.UserSignupReq;
-import com.springboot.project.community.dto.auth.UserUpdateReq;
 import com.springboot.project.community.entity.User;
 import com.springboot.project.community.repository.UserRepository;
+import com.springboot.project.community.util.CookieUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
+/**
+ * 인증 서비스
+ * - 로그인/로그아웃 비즈니스 로직
+ */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
+    private final CookieUtil cookieUtil;
+
+    private static final String REMEMBER_ME_COOKIE = "rememberMe";
+    private static final int REMEBER_ME_DURATION = 7 * 24 * 60 * 60; // 7일
 
     /**
-     * 회원가입 처리
-     * 1. 이메일과 닉네임 중복을 확인한다.
-     * 2. 비밀번호를 암호화하여 저장한다.
-     * 3. 저장된 회원 정보를 반환한다.
+     * 로그인
      */
     @Transactional
-    public UserRes signup(UserSignupReq req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+    public User login(String email, String password, boolean rememberMe,
+                      HttpServletRequest request, HttpServletResponse response) {
+        // 1. 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다."));
+
+        // 2. 비밀번호 검증
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        if (userRepository.existsByNickname(req.getNickname())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+        // 3. 세션에 사용자 정보 저장
+        sessionService.login(request, user);
+
+        // 4. Remember Me 쿠키 처리
+        if (rememberMe) {
+            String rememberMeToken = generateRememberMeToken(user);
+            Cookie cookie = cookieUtil.createCookie(REMEMBER_ME_COOKIE, rememberMeToken, REMEBER_ME_DURATION);
+            response.addCookie(cookie);
         }
-
-        User user = User.builder()
-                .email(req.getEmail())
-                .password(passwordEncoder.encode(req.getPassword()))
-                .nickname(req.getNickname())
-                .image(req.getImage())
-                .useYn(false)
-                .build();
-
-        userRepository.save(user);
-
-        return UserRes.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .build();
-    }
-
-    /**
-     * 로그인 처리
-     * 1. 이메일을 통해 사용자를 조회한다.
-     * 2. 비밀번호가 일치하는지 확인한다.
-     * 3. 일치하면 사용자 정보를 반환한다.
-     */
-    @Transactional(readOnly = true)
-    public UserRes login(UserLoginReq req) {
-        User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
-
-        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        return UserRes.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .nickname(user.getNickname())
-                .build();
-    }
-
-    /**
-     * 회원정보 수정
-     */
-    @Transactional
-    public User updateUser(Long userId, UserUpdateReq req) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-        if (req.getNickname() != null && !req.getNickname().isBlank()) {
-            user.setNickname(req.getNickname());
-        }
-
-        if (req.getPassword() != null && !req.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(req.getPassword()));
-        }
-
         return user;
     }
 
     /**
-     * 닉네임 사용 가능 여부 확인
+     * 로그아웃
      */
-    public boolean isNicknameAvailable(String nickname) {
-        return !userRepository.existsByNickname(nickname);
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // 1. 세션 무효화
+        sessionService.logout(request);
+
+        // 2. Remember Me 쿠키 삭제
+        cookieUtil.deleteCookie(response, REMEMBER_ME_COOKIE);
     }
 
     /**
-     * 닉네임 사용 가능 여부 확인
+     * Remember Me 토큰 생성
+     * 향후 JWT 기반으로 전환 시 이 부분이 Refresh Token 생성으로 변경됨
      */
-    public boolean isEmailAvailable(String email) {
-        return !userRepository.existsByEmail(email);
+    public String generateRememberMeToken(User user) {
+        // 현재는 간단히 구현
+        // 실제로는 UUID + 사용자ID + 만료시간 조합 후 암호화
+        return user.getUserId() + ":" + System.currentTimeMillis();
     }
+
+    /**
+     * Remember Me 토큰 검증 및 자동 로그인
+     */
+    public boolean autoLoginByRememberMe(HttpServletRequest request, HttpServletResponse response) {
+        return cookieUtil.getCookieValue(request, REMEMBER_ME_COOKIE)
+                .flatMap(this::validateAndParseToken)
+                .map(userId -> {
+                    User user = userRepository.findById(userId)
+                            .orElse(null);
+                    if (user != null){
+                        sessionService.login(request, user);
+                        return true;
+                    }
+                    return false;
+                })
+                .orElse(false);
+    }
+
+    /**
+     * Remember Me 토큰 파싱 및 검증
+     */
+    public Optional<Long> validateAndParseToken(String token) {
+        try {
+            String[] parts = token.split(":");
+            if (parts.length == 2) {
+                Long userId = Long.parseLong(parts[0]);
+                Long timestamp = Long.parseLong(parts[1]);
+
+                // 만료 시간 체크 (7일)
+                if (System.currentTimeMillis() - timestamp < REMEBER_ME_DURATION * 1000L) {
+                    return Optional.of(userId);
+                }
+            }
+        } catch (Exception e) {
+            // 토큰 파싱 실패
+        }
+        return Optional.empty();
+    }
+
 }

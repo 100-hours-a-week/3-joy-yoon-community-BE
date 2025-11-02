@@ -26,7 +26,7 @@ public class CommentController {
      * 댓글 작성
      */
     @PostMapping("/{postId}")
-    public CommentRes addComment(
+    public CommentCreateReq addComment(
             @AuthenticationPrincipal(expression = "user.userId") Long userId,
             @RequestParam Long postId,
             @RequestBody CommentCreateReq req) {
@@ -36,7 +36,7 @@ public class CommentController {
     /**
      * 댓글 수정
      */
-    @PutMapping("/{postId}")
+    @PutMapping("/{postId}/{commentId}")
     public ResponseEntity<CommentUpdateReq> updateComment(
             @RequestParam Long userId, // 로그인 사용자의 ID
             @PathVariable Long postId,

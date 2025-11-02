@@ -5,29 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="404d56d6-7614-4447-9bf4-8dfd4454b001" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/WebConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/BoardListRes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/comment/CommentUpdateReq.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/AuthenticationInterceptor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/CookieConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/auth/AuthController_bak.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/auth/JwtAuthController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/LoginHistory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/RefreshToken.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/RefreshTokenRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/security/jwt/JwtAuthenticationFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/security/jwt/JwtTokenProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/security/jwt/TokenService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/auth/SessionService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/auth/UserService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/util/CookieUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/board/BoardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/board/BoardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/JpaConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/JpaConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/auth/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/auth/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/comment/CommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/controller/comment/CommentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/PostRes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/PostRes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/PostUpdateReq.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/PostUpdateReq.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/comment/CommentRes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/comment/CommentRes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/Board.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/BoardImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/BoardImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/BoardLike.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/BoardLike.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/Comment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/Comment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/ImageFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/ImageFile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardImageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardImageRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardLikeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardLikeRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardStatsRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/BoardStatsRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/CommentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/CommentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/board/BoardService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/board/BoardService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/auth/UserLoginReq.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/auth/UserLoginReq.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/BoardListRes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/board/BoardListRes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/comment/CommentCreateReq.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/dto/comment/CommentCreateReq.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/security/CustomUserDetails.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/security/CustomUserDetails.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/auth/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/auth/AuthService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/comment/CommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/project/community/service/comment/CommentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/frontend/post-create.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/frontend/public/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/frontend/public/css/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/frontend/public/js/change-password.js" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/frontend/public/js/change-password.js" afterDir="false" />
@@ -110,6 +114,12 @@
       <recent name="$PROJECT_DIR$/src/main/resources/templates/thymeleaf" />
       <recent name="$PROJECT_DIR$/src/main/resources/static" />
       <recent name="$PROJECT_DIR$/src/main/resources/static/css" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.springboot.project.community.entity" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.springboot.project.community.controller.auth" />
     </key>
   </component>
   <component name="RunManager">

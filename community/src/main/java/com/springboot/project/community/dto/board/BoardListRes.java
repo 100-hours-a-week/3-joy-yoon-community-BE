@@ -18,6 +18,7 @@ public class BoardListRes {
     private Long id;
     private String title;
     private String author;
+    private String contents;
     private Long likes;
     private Long comments;
     private Long views;
@@ -28,6 +29,7 @@ public class BoardListRes {
         return BoardListRes.builder()
                 .id(board.getPostId())
                 .title(board.getTitle())
+                .contents(board.getContents())
                 .author(board.getAuthor().getNickname()) // User의 필드명에 맞게 수정
                 .createdAt(board.getCreatedAt())
                 .likes(stats != null ? stats.getLikeCount() : 0L)

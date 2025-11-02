@@ -22,43 +22,50 @@ public class CommentService {
     private final BoardStatsRepository boardStatsRepository;
 
     @Transactional
-    public CommentRes add(Long userId, Long postId, CommentCreateReq req) {
-        // 작성자 확인
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다. userId=" + userId));
+    public CommentCreateReq add(Long userId, Long postId, CommentCreateReq req) {
+        User user = userRepository.findById(userId).orElseThrow();
+        Board board = boardRepository.findById(req.getPostId()).orElseThrow();
 
-        // 게시글 확인
-        Board board = boardRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. postId=" + postId));
-
-        // 댓글 생성 및 저장
         Comment comment = Comment.builder()
                 .author(user)
                 .board(board)
                 .contents(req.getContents())
                 .build();
-
         commentRepository.save(comment);
 
-        // 댓글 수 증가
         BoardStats stats = boardStatsRepository.findById(board.getPostId())
-                .orElseGet(() -> BoardStats.builder()
-                        .postId(board.getPostId())
-                        .likeCount(0L)
-                        .commentCount(0L)
-                        .viewCount(0L)
-                        .build());
+                .orElseThrow(() -> new IllegalArgumentException("게시글 통계 정보가 없습니다."));
         stats.setCommentCount(stats.getCommentCount() + 1);
-        boardStatsRepository.save(stats);
+        boardStatsRepository.save(stats); // 명시적으로 저장
 
         // 응답 DTO 반환
-        return CommentRes.builder()
+        return CommentCreateReq.builder()
+                .commentId(comment.getCommentId())
+                .postId(board.getPostId())
+                .author(user.getNickname())
+                .contents(comment.getContents())
+                .createdAt(comment.getCreatedAt())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentRes> findByPost(Long postId) {
+        return commentRepository.findByBoard_PostIdOrderByCreatedAtAsc(postId)
+                .stream()
+                .map(c -> CommentRes.builder()
+                        .commentId(c.getCommentId())
+                        .postId(postId)
+                        .author(c.getAuthor() != null ? c.getAuthor().getNickname() : "(탈퇴회원)")
+                        .content(c.getContents())
+                        .createdAt(c.getCreatedAt())
+                        .build())
+                .toList();
+    }
 
 
-
-        /**
-         * 게시글 수정
-         */
+    /**
+     * 게시글 수정
+     */
     @Transactional
     public CommentUpdateReq update(Long userId, Long postId, Long commentId, CommentUpdateReq req) {
 

@@ -23,7 +23,7 @@ public class CustomUserDetails implements UserDetails {
     private final User user;
 
     /**
-     * ✅ 부여 권한 목록
+     * 부여 권한 목록
      * - 필요 시 DB/enum 기반으로 확장 가능
      */
     @Override
@@ -31,13 +31,13 @@ public class CustomUserDetails implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    /** ✅ 인증용 비밀번호(해시) */
+    /** 인증용 비밀번호(해시) */
     @Override
     public String getPassword() {
         return user.getPassword();
     }
 
-    /** ✅ 인증용 사용자명(여기서는 이메일 사용) */
+    /** 인증용 사용자명(여기서는 이메일 사용) */
     @Override
     public String getUsername() {
         return user.getEmail();

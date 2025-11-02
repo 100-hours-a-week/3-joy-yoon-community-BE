@@ -1,7 +1,24 @@
 jwt:
   secret: "m0R4q7Y2Q4sH9p2P0s1tH3bD9vM7qP1kA4vL0nM8qQ0rC5yX3fS9eW=="
+  access-token-expiration: 900000
+  refresh-token-expiration: 604800000
 
 spring:
+  # 세션 설정
+  session:
+    store-type: redis # 프로덕션은 redis 사용 권장, 개발환경은 none
+    timeout: 30m
+  # 쿠키 설정
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        http-only: true
+        secure: false # 프로덕션에서는 true (HTTPS)
+        same-site: lax # CSRF 방지
+        max-age: 30m
+        path: /
+
   thymeleaf:
     prefix: classpath:templates/thymeleaf/
     check-template-location: true
