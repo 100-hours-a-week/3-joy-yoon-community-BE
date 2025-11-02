@@ -20,7 +20,6 @@ public class WebConfig implements WebMvcConfigurer {
      * 인터셉터 등록
      * 특정 경로에만 인증 체크 적용
      */
-
     @Override
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(authenticationInterceptor)
@@ -38,7 +37,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                .allowedHeaders("*");
+//                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true) // 쿠키전송허용
+                .maxAge(3600);
     }
 }
