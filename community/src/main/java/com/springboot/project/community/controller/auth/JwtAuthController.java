@@ -33,7 +33,6 @@ public class JwtAuthController {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CookieUtil cookieUtil;
 
     /**
      * 로그인
@@ -72,11 +71,19 @@ public class JwtAuthController {
      * Access Token 재발급
      */
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request) {
-        String refreshToken = cookieUtil.getCookieValue(request, "refreshToken")
-                .orElseThrow(() -> new IllegalArgumentException("Refresh Token이 없습니다."));
+    public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response) {
 
+        // 쿠키에서 refreshToken 가져오기
+        String refreshToken = CookieUtil.getCookieValue(request, "refreshToken");
+        if (refreshToken == null) {
+            throw new IllegalArgumentException("Refresh Token이 없습니다.");
+        }
+
+        // Access Token 재발급
         Map<String, String> tokens = tokenService.refreshAccessToken(refreshToken);
+
+        // 신규 refreshToken 쿠키 재설정
+        tokenService.setRefreshTokenCookie(tokens.get("refreshToken"), response);
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);

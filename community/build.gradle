@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.springboot.project'
@@ -9,50 +9,44 @@ version = '0.0.1-SNAPSHOT'
 description = 'SpringBoot Api'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+}
+
+bootJar{
+    archiveFileName = 'app.jar'
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.0'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'CREATE TABLE 'refresh_tokens' (
-            'token_id' BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                    'user_id' BIGINT UNSIGNED NOT NULL,
-                    'token' VARCHAR(500) NOT NULL,
-                    'expires_at' TIMESTAMP NOT NULL,
-            'created_at' TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-            'user_agent' VARCHAR(255) DEFAULT NULL,
-                    'ip_address' VARCHAR(45) DEFAULT NULL,
-                    PRIMARY KEY ('token_id'),
-            UNIQUE KEY 'uk_token' ('token'),
-            KEY 'idx_user_id' ('user_id'),
-                    KEY 'idx_expires_at' ('expires_at'),
-            CONSTRAINT 'fk_refresh_token_user' FOREIGN KEY ('user_id') REFERENCES 'users' ('user_id') ON DELETE CASCADE
-    );
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
@@ -62,7 +56,7 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 clean {

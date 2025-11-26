@@ -71,18 +71,20 @@ public class JwtTokenProvider {
      * - 긴 유효기간 (7일)
      * - HttpOnly 쿠키 저장
      */
-    public String createRefreshToken(Long userId) {
+    public String createRefreshToken(Long userId, String email) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
-                .setSubject(userId.toString())
-                .claim("type", "refresh")
+                .setSubject(userId.toString())   // user 식별
+                .claim("email", email)           // 이메일 포함 (선택)
+                .claim("type", "refresh")        // refresh 토큰임을 명시
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     /**
      * 토큰에서 사용자 ID 추출
