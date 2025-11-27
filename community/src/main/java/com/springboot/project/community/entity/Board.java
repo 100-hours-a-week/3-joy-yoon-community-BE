@@ -60,6 +60,7 @@ public class Board {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<BoardImage> images = new ArrayList<>();
 
     // 연관관계 편의 메서드 - 개별 추가

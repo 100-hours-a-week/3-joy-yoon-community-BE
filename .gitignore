@@ -1,1 +1,4 @@
-frontend/
+build/
+.gradle/
+.idea/
+**/*.jar
