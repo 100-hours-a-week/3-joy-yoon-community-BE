@@ -1,8 +1,8 @@
-# version: '3.8'
+version: '3.8'
 
 services:
   backend:
-    image: community-backend:v1.1
+    image: ${DOCKER_IMAGE_NAME}:${TAG}
     build: .
     container_name: community-be
     restart: always
@@ -16,7 +16,6 @@ services:
       # Spring 프로파일
       SPRING_PROFILES_ACTIVE: prod
       # 데이터베이스 연결 정보
-      # SPRING_DATASOURCE_URL: jdbc:mysql://172.31.45.78:3306/community_db?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
@@ -32,11 +31,6 @@ services:
       JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION}
     networks:
       - community_net
-
-volumes:
-  db_data:
-  portainer_data:
-  registry_data:
 
 networks:
   community_net:
