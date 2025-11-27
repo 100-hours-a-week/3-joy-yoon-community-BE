@@ -61,8 +61,8 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          # 1. 최신 이미지 받기 (태그 일치 확인: community-be:latest)
-          docker pull ${{ secrets.DOCKER_USERNAME }}/community-be:latest
+          # 1. 최신 이미지 받기 (태그 일치 확인: community-backend:v1.1)
+          docker pull ${{ secrets.DOCKER_USERNAME }}/community-backend:v1.1
           
           # 2. 배포 폴더로 이동 (없으면 생성)
           mkdir -p /home/${{ secrets.SERVER_USER }}/backend-deploy
@@ -73,7 +73,7 @@ jobs:
           services:
             backend:
               container_name: community-backend
-              image: ${{ secrets.DOCKER_USERNAME }}/community-be:latest
+              image: ${{ secrets.DOCKER_USERNAME }}/community-backend:v1.1
               ports:
                 - '8080:8080'
               environment:
