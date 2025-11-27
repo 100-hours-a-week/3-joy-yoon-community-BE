@@ -1,0 +1,56 @@
+# 빌드 스테이지 시작: Gradle 8.10.2 및 JDK 21 환경 설정
+FROM gradle:8.10.2-jdk21 AS build
+
+# 컨테이너 내 작업 디렉토리를 /app으로 설정
+WORKDIR /app
+
+# Gradle 래퍼 스크립트, 설정 파일 및 빌드 파일 복사 (의존성 캐시 최적화)
+COPY gradlew gradlew.bat build.gradle settings.gradle gradle /app/
+
+# Gradle Wrapper JAR 및 설정 파일 명시적으로 복사
+COPY gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties /app/gradle/wrapper/
+
+# Gradle 버전 확인 및 의존성 캐시 워밍업 실행
+RUN ./gradlew --no-daemon --version
+
+# 애플리케이션 소스 코드 복사
+COPY src /app/src
+
+# Spring Boot 실행 가능한 JAR 파일 빌드 (테스트 실행 스킵)
+RUN ./gradlew --no-daemon clean bootJar -x test
+
+# ==============================================
+# 런타임 스테이지 시작: JRE 21만 포함한 경량 이미지를 사용
+# ==============================================
+FROM eclipse-temurin:21-jre
+
+# Variables
+ARG USERNAME=community
+ARG USER_UID=1001
+ARG USER_GID=1001
+
+# 런타임 작업 디렉토리 설정
+WORKDIR /app
+
+# 사용자/그룹 추가
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+# 빌드 스테이지에서 생성된 JAR 파일을 현재 런타임 이미지로 복사하고 이름을 app.jar로 지정
+COPY --from=build /app/build/libs/app.jar app.jar
+
+# 소유권 변경
+RUN chown -R $USERNAME:$USERNAME /app
+
+# 사용자 전환
+USER $USERNAME
+
+# 애플리케이션이 외부로 노출할 포트 (Spring Boot 기본 포트 8080) 선언
+EXPOSE 8080
+
+# 컨테이너 실행 시 애플리케이션을 시작하는 명령어 설정
+ENTRYPOINT ["java", "-jar", "app.jar"]

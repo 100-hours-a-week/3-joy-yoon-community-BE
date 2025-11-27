@@ -1,0 +1,107 @@
+
+.terms-container {
+    max-width: 800px;
+    margin: 60px auto;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+h2 {
+    margin-top: 30px;
+    font-size: 20px;
+    color: #222;
+    border-left: 4px solid #4CAF50;
+    padding-left: 10px;
+}
+
+p {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #444;
+}
+
+ul {
+    margin: 10px 0 20px 20px;
+    list-style-type: disc;
+}
+
+.btn-wrap {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background-color: #43a047;
+}
+
+.btn.cancel {
+    background-color: #9e9e9e;
+    margin-left: 10px;
+}
+
+.btn.cancel:hover {
+    background-color: #757575;
+}
+
+header {
+  background: white;        /* 배경색 → 흰색 */
+  color: black;             /* 글자색 → 검은색 */
+  padding: 24px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* 가운데 정렬 */
+  text-align: center;
+  font-family: "맑은 고딕", sans-serif;
+  border-bottom: 1px solid #999;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+header nav a {
+  color: black;             /* 링크 색상도 검은색으로 */
+  margin-left: 18px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif;
+  background: linear-gradient(180deg, #f7f9fc, white);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: block;     /* flex 제거 */
+}
+
+footer {
+    background: white;
+    padding: 16px 24px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+    border-top: 1px solid #ddd;
+}
