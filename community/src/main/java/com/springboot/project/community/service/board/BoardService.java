@@ -45,15 +45,6 @@ public class BoardService {
 
         boardRepository.save(board);
 
-        // BOARD_STATS 초기화
-        BoardStats stats = BoardStats.builder()
-                .board(board) // @MapsId로 인해 board의 ID를 따라감
-                .viewCount(0L)
-                .likeCount(0L)
-                .commentCount(0L)
-                .build();
-        boardStatsRepository.save(stats);
-
         // 이미지 저장
         List<BoardImage> images = new ArrayList<>();
         if (req.getImageUrls() != null) {
@@ -143,7 +134,7 @@ public class BoardService {
     }
 
     /**
-     * 게시글 상세 조회
+     * 상세 게시글 조회
      */
     @Transactional
     public PostRes findById(Long postId) {

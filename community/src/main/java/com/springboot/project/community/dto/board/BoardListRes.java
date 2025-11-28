@@ -32,9 +32,9 @@ public class BoardListRes {
                 .contents(board.getContents())
                 .author(board.getAuthor().getNickname()) // User의 필드명에 맞게 수정
                 .createdAt(board.getCreatedAt())
-                .likes(stats != null ? stats.getLikeCount() : 0L)
-                .comments(stats != null ? stats.getCommentCount() : 0L)
-                .views(stats != null ? stats.getViewCount() : 0L)
+                .like_count(stats != null ? stats.getLikeCount() : 0L)
+                .comment_count(stats != null ? stats.getCommentCount() : 0L)
+                .view_count(stats != null ? stats.getViewCount() : 0L)
                 .build();
     }
 }
