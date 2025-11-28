@@ -7,23 +7,35 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-/**
- *  게시글 통계 Repository
- */
 @Repository
 public interface BoardStatsRepository extends JpaRepository<BoardStats, Long> {
-    /**
-     * 여러 게시글 ID로 통계 정보 조회
-     */
-    List<BoardStats> findByPostIdIn(List<Long> postIds);
 
-//    @Modifying
-//    @Query("UPDATE BoardStats bs SET bs.commentCount = bs.commentCount + 1 WHERE bs.postId = :postId")
-//    void incrementCommentCount(@Param("postId") Long postId);
-//
-//    @Modifying
-//    @Query("UPDATE BoardStats bs SET bs.commentCount = bs.commentCount - 1 WHERE bs.postId = :postId")
-//    void decrementCommentCount(@Param("postId") Long postId);
+    // 댓글 수 1 증가 (벌크 업데이트. DB에서 직접 값 증가 → 동시성에 안전)
+    // clearAutomatically: 벌크 연산 후 영속성 컨텍스트 초기화
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE BoardStats bs 
+            SET bs.commentCount = bs.commentCount + 1 
+            WHERE bs.postId = :postId")
+    int incrementCommentCount(@Param("postId") Long postId);
+
+    // 댓글 수 1 감소 (0 아래로 내려가지 않도록 조건 추가)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE BoardStats bs 
+            SET bs.commentCount = bs.commentCount - 1 
+            WHERE bs.postId = :postId AND bs.commentCount > 0")
+    int decrementCommentCount(@Param("postId") Long postId);
+
+    // 좋아요 수 1 증가
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE BoardStats bs 
+            SET bs.likeCount = bs.likeCount + 1 
+            WHERE bs.postId = :postId")
+    int incrementLikeCount(@Param("postId") Long postId);
+
+    // 좋아요 수 1 감소 (0 아래로 내려가지 않도록 조건 추가)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE BoardStats bs 
+            SET bs.likeCount = bs.likeCount - 1 
+            WHERE bs.postId = :postId AND bs.likeCount > 0")
+    int decrementLikeCount(@Param("postId") Long postId);
 }
