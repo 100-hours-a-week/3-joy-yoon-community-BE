@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** 게시글 서비스 */
+/** 
+ * 게시글 서비스 
+*/
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -42,6 +44,15 @@ public class BoardService {
                 .build();
 
         boardRepository.save(board);
+
+        // BOARD_STATS 초기화
+        BoardStats stats = BoardStats.builder()
+                .board(board) // @MapsId로 인해 board의 ID를 따라감
+                .viewCount(0L)
+                .likeCount(0L)
+                .commentCount(0L)
+                .build();
+        boardStatsRepository.save(stats);
 
         // 이미지 저장
         List<BoardImage> images = new ArrayList<>();
@@ -132,7 +143,7 @@ public class BoardService {
     }
 
     /**
-     * 상세 게시글 조회
+     * 게시글 상세 조회
      */
     @Transactional
     public PostRes findById(Long postId) {

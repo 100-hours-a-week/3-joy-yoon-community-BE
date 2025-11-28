@@ -29,16 +29,16 @@ public class LikeService {
 
     @Transactional
     public LikeToggleRes toggle(Long userId, Long postId) {
-        // 1) 유저/게시글 검증
+        // 유저/게시글 검증
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         Board board = boardRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-        // 2) 복합키 구성
+        // 복합키 구성
         BoardLikeId likeId = new BoardLikeId(userId, postId);
 
-        // 3) 기존 데이터 조회
+        // 기존 데이터 조회
         BoardLike existing = boardLikeRepository.findById(likeId).orElse(null);
         boolean liked;
 
@@ -58,11 +58,11 @@ public class LikeService {
             liked = !existing.isDeleted();
         }
 
-        // 4) 통계 갱신 (BoardStats의 count가 INT라면 Integer로 취급)
+        // 통계 갱신 (BoardStats의 count가 INT라면 Integer로 취급)
         BoardStats stats = boardStatsRepository.findById(postId)
                 .orElse(BoardStats.builder()
                         .postId(postId)
-                        .viewCount(0L)       // INT면 Integer 0
+                        .viewCount(0L) // INT면 Integer 0
                         .likeCount(0L)
                         .commentCount(0L)
                         .build());
@@ -71,7 +71,7 @@ public class LikeService {
         stats.setLikeCount(Math.max(newLikeCount, 0L));
         boardStatsRepository.save(stats);
 
-        // 5) 응답 (DTO가 Long-count면 변환)
+        // 응답 (DTO가 Long-count면 변환)
         return LikeToggleRes.builder()
                 .postId(postId)
                 .likeCount((long) stats.getLikeCount()) // Integer → Long 변환
