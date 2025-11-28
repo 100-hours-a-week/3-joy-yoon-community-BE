@@ -1,7 +1,22 @@
 package com.springboot.project.community.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 
 /**
  * 게시글 통계 테이블 (BOARD_STATS)
@@ -15,7 +30,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class BoardStats {
 
@@ -24,6 +39,7 @@ public class BoardStats {
     private Long postId;
 
     //  명시적으로 Board를 참조 (FK 명시)
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "post_id", // BoardStats.post_id
@@ -43,4 +59,9 @@ public class BoardStats {
     @Builder.Default
     @Column(name = "comment_count", nullable = false)
     private Long commentCount = 0L;
+
+    public void setBoard(Board board) {
+        this.board = board;
+        this.post_id = board.post_id();
+    }
 }
