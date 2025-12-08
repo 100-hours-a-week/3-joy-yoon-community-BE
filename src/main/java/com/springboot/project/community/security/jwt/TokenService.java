@@ -1,9 +1,12 @@
 package com.springboot.project.community.security.jwt;
 
+import com.springboot.project.community.entity.RefreshToken;
 import com.springboot.project.community.entity.User;
+import com.springboot.project.community.repository.RefreshTokenRepository;
 import com.springboot.project.community.repository.UserRepository;
 import com.springboot.project.community.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,12 +32,12 @@ public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
     private final UserRepository userRepository;
-//    private final RefreshTokenRepository refreshTokenRepository; // 향후 추가
+    private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * 로그인 성공 시 토큰 발급
      * - Access Token : 응답 본문으로 반환 (클라이언트가 메모리에 저장)
-     * - Refresh Token : HttpOnly 쿠키로 저장
+     * - Refresh Token : HttpOnly 쿠키로 저장 + DB에 저장
      */
     @Transactional
     public Map<String, String> issueTokens(User user, HttpServletResponse response) {
@@ -48,8 +51,8 @@ public class TokenService {
         Cookie refreshTokenCookie = cookieUtil.createRefreshTokenCookie(refreshToken);
         response.addCookie(refreshTokenCookie);
 
-        // 4. Refresh Token을 DB에 저장 (향후 추가)
-        // saveRefreshToken(user.getUserId(), refreshToken);
+        // 4. Refresh Token을 DB에 저장 (토큰 탈취 방지)
+        saveRefreshToken(user.getUserId(), refreshToken);
 
         // 5. Access Token만 응답으로 반환
         Map<String, String> tokens = new HashMap<>();
@@ -83,15 +86,15 @@ public class TokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 3. DB의 Refresh Token과 일치하는지 확인 (향후 추가)
-        // validateRefreshToken(userId, refreshToken);
+        // 3. DB의 Refresh Token과 일치하는지 확인
+        validateRefreshToken(userId, refreshToken);
 
         // 4. 새로운 Access Token 생성
         String newAccessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getEmail());
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", newAccessToken);
-        tokens.put("tokentype", "Bearer");
+        tokens.put("tokenType", "Bearer");
 
         return tokens;
     }
@@ -99,28 +102,62 @@ public class TokenService {
     /**
      * 로그아웃
      * - Refresh Token 쿠키 삭제
-     * - DB의 Refresh Token 삭제 (향후 추가)
+     * - DB의 Refresh Token 삭제
      */
     @Transactional
     public void logout(Long userId, HttpServletResponse response) {
         // 1. Refresh Token 쿠키 삭제
         cookieUtil.deleteCookie(response, "refreshToken");
 
-        // 2. DB의 Refresh Token 삭제 (향후 추가)
-        // deleteRefreshToken(userId);
+        // 2. DB의 Refresh Token 삭제
+        if (userId != null) {
+            deleteRefreshToken(userId);
+        }
     }
 
-    // 향후 구현예정
-    /*
+    /**
+     * Access Token 유효성 검증
+     */
+    public boolean validateAccessToken(HttpServletRequest request) {
+        String accessToken = extractAccessToken(request);
+        return accessToken != null && jwtTokenProvider.validateToken(accessToken);
+    }
+
+    /**
+     * Authorization 헤더에서 Access Token 추출
+     */
+    private String extractAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    /**
+     * Refresh Token DB 저장
+     * - 기존 토큰이 있으면 갱신, 없으면 새로 생성
+     */
     private void saveRefreshToken(Long userId, String refreshToken) {
-        RefreshToken entity = RefreshToken.builder()
-                .userId(userId)
-                .token(refreshToken)
-                .expiresAt(LocalDateTime.now().plusDays(7))
-                .build();
-        refreshTokenRepository.save(entity);
+        refreshTokenRepository.findByUserId(userId)
+                .ifPresentOrElse(
+                        // 기존 토큰 갱신
+                        existing -> existing.updateToken(refreshToken, LocalDateTime.now().plusDays(7)),
+                        // 새 토큰 생성
+                        () -> {
+                            RefreshToken entity = RefreshToken.builder()
+                                    .userId(userId)
+                                    .token(refreshToken)
+                                    .expiresAt(LocalDateTime.now().plusDays(7))
+                                    .build();
+                            refreshTokenRepository.save(entity);
+                        }
+                );
     }
 
+    /**
+     * Refresh Token 검증
+     */
     private void validateRefreshToken(Long userId, String refreshToken) {
         RefreshToken stored = refreshTokenRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("저장된 Refresh Token이 없습니다."));
@@ -134,8 +171,10 @@ public class TokenService {
         }
     }
 
+    /**
+     * Refresh Token 삭제
+     */
     private void deleteRefreshToken(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
     }
-    */
 }

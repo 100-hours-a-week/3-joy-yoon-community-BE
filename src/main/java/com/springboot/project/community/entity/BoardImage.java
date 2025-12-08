@@ -28,8 +28,8 @@ public class BoardImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_id", columnDefinition = "BIGINT UNSIGNED")
-    private Long imageId;
+    @Column(name = "image_id", columnDefinition = "INT UNSIGNED")
+    private Integer imageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(

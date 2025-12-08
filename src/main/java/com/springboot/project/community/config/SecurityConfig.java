@@ -50,23 +50,30 @@ public class SecurityConfig {
                 // CORS 설정 적용
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 인증 규칙 (임시 설정)
+                // 인증 규칙
                 .authorizeHttpRequests(auth -> auth
+                        // 인증 없이 접근 가능
                         .requestMatchers(
-                                "/api/auth/login",
+                                // 인증 API
                                 "/api/auth/signup",
+                                "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/check",
                                 "/api/auth/check-email",
                                 "/api/auth/check-nickname",
+                                // 정적 리소스
                                 "/",
-                                "/login",
-                                "/signup",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/error"
                         ).permitAll()
+                        // 게시판 조회만 비로그인 허용 (GET만)
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/boards").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/boards/*").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/boards/*/comments").permitAll()
+                        // 나머지는 인증 필요
+                        .anyRequest().authenticated()
                 )
 
                 // 로그아웃 설정
@@ -81,64 +88,10 @@ public class SecurityConfig {
 
                 // 기본 로그인/HTTP Basic 인증 비활성화
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .httpBasic(AbstractHttpConfigurer::disable)
 
-        // JWT 필터 추가 위치
-        // http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-
-    /**
-     * JWT 기반 인증 (API용)
-     * /api/** 경로에만 적용
-     */
-    @Bean
-    @Order(1)
-    public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/api/likes")  // /api/** 경로에만 적용
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-//                        .requestMatchers("/api/**").authenticated()
-                )
+                // JWT 필터 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-
-    /**
-     * 세션 기반 인증 (웹 UI용)
-     * /web/** 또는 다른 모든 경로에 적용
-     */
-    @Bean
-    @Order(2)
-    public SecurityFilterChain sessionFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/web/**", "/", "/login", "/signup")  // 웹 경로
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))  // API는 CSRF 제외
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))  // 세션 사용
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/web/**").authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/web/auth/login")
-                        .defaultSuccessUrl("/web/home")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/web/auth/logout")
-                        .logoutSuccessUrl("/")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                );
 
         return http.build();
     }

@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 public class CommentRes {
     private Long commentId;
     private Long postId;
+    private Long userId;
     private String author;           // 닉네임
+    private String authorImage;
     private String content;
     private LocalDateTime createdAt;
 
@@ -23,7 +25,9 @@ public class CommentRes {
         return CommentRes.builder()
                 .commentId(c.getCommentId())
                 .postId(c.getBoard().getPostId())
+                .userId(c.getAuthor().getUserId())
                 .author(c.getAuthor().getNickname())
+                .authorImage(c.getAuthor().getImage())
                 .content(c.getContents())
                 .createdAt(c.getCreatedAt())
                 .build();

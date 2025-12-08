@@ -19,11 +19,45 @@ public interface BoardStatsRepository extends JpaRepository<BoardStats, Long> {
      */
     List<BoardStats> findByPostIdIn(List<Long> postIds);
 
-//    @Modifying
-//    @Query("UPDATE BoardStats bs SET bs.commentCount = bs.commentCount + 1 WHERE bs.postId = :postId")
-//    void incrementCommentCount(@Param("postId") Long postId);
-//
-//    @Modifying
-//    @Query("UPDATE BoardStats bs SET bs.commentCount = bs.commentCount - 1 WHERE bs.postId = :postId")
-//    void decrementCommentCount(@Param("postId") Long postId);
+    /**
+     * BoardStats가 없으면 생성 (Native Query로 동시성 문제 해결)
+     */
+    @Modifying
+    @Query(value = "INSERT IGNORE INTO BOARD_STATS (post_id, view_count, like_count, comment_count) VALUES (:postId, 0, 0, 0)", nativeQuery = true)
+    void createIfNotExists(@Param("postId") Long postId);
+
+    /**
+     * 댓글 수 증가 (Native Query로 동시성 문제 해결)
+     */
+    @Modifying
+    @Query(value = "UPDATE BOARD_STATS SET comment_count = comment_count + 1 WHERE post_id = :postId", nativeQuery = true)
+    void incrementCommentCount(@Param("postId") Long postId);
+
+    /**
+     * 댓글 수 감소 (Native Query로 동시성 문제 해결)
+     */
+    @Modifying
+    @Query(value = "UPDATE BOARD_STATS SET comment_count = GREATEST(comment_count - 1, 0) WHERE post_id = :postId", nativeQuery = true)
+    void decrementCommentCount(@Param("postId") Long postId);
+
+    /**
+     * 좋아요 수 증가 (Native Query로 동시성 문제 해결)
+     */
+    @Modifying
+    @Query(value = "UPDATE BOARD_STATS SET like_count = like_count + 1 WHERE post_id = :postId", nativeQuery = true)
+    void incrementLikeCount(@Param("postId") Long postId);
+
+    /**
+     * 좋아요 수 감소 (Native Query로 동시성 문제 해결)
+     */
+    @Modifying
+    @Query(value = "UPDATE BOARD_STATS SET like_count = GREATEST(like_count - 1, 0) WHERE post_id = :postId", nativeQuery = true)
+    void decrementLikeCount(@Param("postId") Long postId);
+
+    /**
+     * 조회수 증가 (Native Query로 동시성 문제 해결)
+     */
+    @Modifying
+    @Query(value = "UPDATE BOARD_STATS SET view_count = view_count + 1 WHERE post_id = :postId", nativeQuery = true)
+    void incrementViewCount(@Param("postId") Long postId);
 }

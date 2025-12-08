@@ -35,15 +35,18 @@ public class LikeService {
         Board board = boardRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
 
-        // 2) 복합키 구성
+        // 2) boardStats가 없으면 생성 (Native Query로 동시성 문제 해결)
+        boardStatsRepository.createIfNotExists(postId);
+
+        // 3) 복합키 구성 (본인의 userId로만 조회)
         BoardLikeId likeId = new BoardLikeId(userId, postId);
 
-        // 3) 기존 데이터 조회
+        // 4) 본인이 누른 좋아요만 확인 (남이 누른 좋아요는 조회되지 않음)
         BoardLike existing = boardLikeRepository.findById(likeId).orElse(null);
         boolean liked;
 
         if (existing == null) {
-            // 새 좋아요 (빌더 대신 setter로 안전 생성)
+            // 본인이 좋아요를 누르지 않았으면 → 좋아요 추가
             BoardLike newLike = new BoardLike();
             newLike.setLikeId(likeId);
             newLike.setUser(user);
@@ -51,30 +54,40 @@ public class LikeService {
             newLike.setDeleted(false);
             boardLikeRepository.save(newLike);
             liked = true;
-        } else {
-            // 토글 (boolean 게터는 isDeleted())
-            existing.setDeleted(!existing.isDeleted());
+            
+            // 좋아요 수 증가 (Native Query로 동시성 문제 해결)
+            boardStatsRepository.incrementLikeCount(postId);
+        } else if (!existing.isDeleted()) {
+            // 본인이 누른 좋아요면 → 좋아요 취소
+            existing.setDeleted(true);
             boardLikeRepository.save(existing);
-            liked = !existing.isDeleted();
+            liked = false;
+            
+            // 좋아요 수 감소 (Native Query로 동시성 문제 해결)
+            boardStatsRepository.decrementLikeCount(postId);
+        } else {
+            // 이미 취소된 좋아요면 → 다시 좋아요
+            existing.setDeleted(false);
+            boardLikeRepository.save(existing);
+            liked = true;
+            
+            // 좋아요 수 증가 (Native Query로 동시성 문제 해결)
+            boardStatsRepository.incrementLikeCount(postId);
         }
 
-        // 4) 통계 갱신 (BoardStats의 count가 INT라면 Integer로 취급)
+        // 5) 현재 좋아요 수 조회
         BoardStats stats = boardStatsRepository.findById(postId)
-                .orElse(BoardStats.builder()
+                .orElseGet(() -> BoardStats.builder()
                         .postId(postId)
-                        .viewCount(0L)       // INT면 Integer 0
                         .likeCount(0L)
                         .commentCount(0L)
+                        .viewCount(0L)
                         .build());
 
-        Long newLikeCount = stats.getLikeCount() + (liked ? 1 : -1);
-        stats.setLikeCount(Math.max(newLikeCount, 0L));
-        boardStatsRepository.save(stats);
-
-        // 5) 응답 (DTO가 Long-count면 변환)
+        // 6) 응답
         return LikeToggleRes.builder()
                 .postId(postId)
-                .likeCount((long) stats.getLikeCount()) // Integer → Long 변환
+                .likeCount(stats.getLikeCount())
                 .liked(liked)
                 .build();
     }

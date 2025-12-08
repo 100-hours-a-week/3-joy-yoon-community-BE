@@ -6,6 +6,7 @@ import com.springboot.project.community.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,11 @@ import java.util.Optional;
 
 /**
  * 인증 서비스
- * - 로그인/로그아웃 비즈니스 로직
+ * 
+ * 책임:
+ * - 로그인 검증 (이메일/비밀번호)
+ * - 세션 관리 (생성/무효화/조회)
+ * - Remember Me 쿠키 관리
  */
 @Service
 @RequiredArgsConstructor
@@ -24,71 +29,135 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SessionService sessionService;
     private final CookieUtil cookieUtil;
 
+    // 세션 관련 상수
+    private static final String USER_SESSION_KEY = "loginUser";
+    private static final int SESSION_TIMEOUT = 30 * 60; // 30분
+
+    // Remember Me 관련 상수
     private static final String REMEMBER_ME_COOKIE = "rememberMe";
-    private static final int REMEBER_ME_DURATION = 7 * 24 * 60 * 60; // 7일
+    private static final int REMEMBER_ME_DURATION = 7 * 24 * 60 * 60; // 7일
+
+    // ==================== 로그인/로그아웃 ====================
 
     /**
      * 로그인
+     * 1. 이메일/비밀번호 검증
+     * 2. 세션 생성
+     * 3. Remember Me 쿠키 설정 (선택)
      */
     @Transactional
     public User login(String email, String password, boolean rememberMe,
                       HttpServletRequest request, HttpServletResponse response) {
-        // 1. 사용자 조회
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다."));
+        // 1. 자격 증명 검증
+        User user = validateCredentials(email, password);
 
-        // 2. 비밀번호 검증
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
-        }
+        // 2. 세션 생성
+        createSession(request, user);
 
-        // 3. 세션에 사용자 정보 저장
-        sessionService.login(request, user);
-
-        // 4. Remember Me 쿠키 처리
+        // 3. Remember Me 처리
         if (rememberMe) {
-            String rememberMeToken = generateRememberMeToken(user);
-            Cookie cookie = cookieUtil.createCookie(REMEMBER_ME_COOKIE, rememberMeToken, REMEBER_ME_DURATION);
-            response.addCookie(cookie);
+            setRememberMeCookie(user, response);
         }
+
         return user;
     }
 
     /**
      * 로그아웃
+     * - 세션 무효화
+     * - Remember Me 쿠키 삭제
      */
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        // 1. 세션 무효화
-        sessionService.logout(request);
-
-        // 2. Remember Me 쿠키 삭제
+        invalidateSession(request);
         cookieUtil.deleteCookie(response, REMEMBER_ME_COOKIE);
     }
 
     /**
-     * Remember Me 토큰 생성
-     * 향후 JWT 기반으로 전환 시 이 부분이 Refresh Token 생성으로 변경됨
+     * 이메일/비밀번호 검증
      */
-    public String generateRememberMeToken(User user) {
-        // 현재는 간단히 구현
-        // 실제로는 UUID + 사용자ID + 만료시간 조합 후 암호화
+    public User validateCredentials(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다."));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
+        }
+
+        return user;
+    }
+
+    // ==================== 세션 관리 ====================
+
+    /**
+     * 세션 생성 및 사용자 정보 저장
+     */
+    private void createSession(HttpServletRequest request, User user) {
+        HttpSession session = request.getSession();
+        session.setAttribute(USER_SESSION_KEY, user);
+        session.setMaxInactiveInterval(SESSION_TIMEOUT);
+    }
+
+    /**
+     * 세션 무효화
+     */
+    private void invalidateSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+    }
+
+    /**
+     * 현재 로그인한 사용자 조회
+     */
+    public Optional<User> getLoginUser(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object user = session.getAttribute(USER_SESSION_KEY);
+            if (user instanceof User) {
+                return Optional.of((User) user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 로그인 여부 확인
+     */
+    public boolean isLoggedIn(HttpServletRequest request) {
+        return getLoginUser(request).isPresent();
+    }
+
+    // ==================== Remember Me ====================
+
+    /**
+     * Remember Me 쿠키 설정
+     */
+    private void setRememberMeCookie(User user, HttpServletResponse response) {
+        String token = generateRememberMeToken(user);
+        Cookie cookie = cookieUtil.createCookie(REMEMBER_ME_COOKIE, token, REMEMBER_ME_DURATION);
+        response.addCookie(cookie);
+    }
+
+    /**
+     * Remember Me 토큰 생성
+     */
+    private String generateRememberMeToken(User user) {
         return user.getUserId() + ":" + System.currentTimeMillis();
     }
 
     /**
-     * Remember Me 토큰 검증 및 자동 로그인
+     * Remember Me 토큰으로 자동 로그인
      */
-    public boolean autoLoginByRememberMe(HttpServletRequest request, HttpServletResponse response) {
+    public boolean autoLoginByRememberMe(HttpServletRequest request) {
         return cookieUtil.getCookieValue(request, REMEMBER_ME_COOKIE)
-                .flatMap(this::validateAndParseToken)
+                .flatMap(this::parseRememberMeToken)
                 .map(userId -> {
-                    User user = userRepository.findById(userId)
-                            .orElse(null);
-                    if (user != null){
-                        sessionService.login(request, user);
+                    User user = userRepository.findById(userId).orElse(null);
+                    if (user != null) {
+                        createSession(request, user);
                         return true;
                     }
                     return false;
@@ -99,65 +168,21 @@ public class AuthService {
     /**
      * Remember Me 토큰 파싱 및 검증
      */
-    public Optional<Long> validateAndParseToken(String token) {
+    private Optional<Long> parseRememberMeToken(String token) {
         try {
             String[] parts = token.split(":");
             if (parts.length == 2) {
                 Long userId = Long.parseLong(parts[0]);
                 Long timestamp = Long.parseLong(parts[1]);
 
-                // 만료 시간 체크 (7일)
-                if (System.currentTimeMillis() - timestamp < REMEBER_ME_DURATION * 1000L) {
+                // 만료 시간 체크
+                if (System.currentTimeMillis() - timestamp < REMEMBER_ME_DURATION * 1000L) {
                     return Optional.of(userId);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             // 토큰 파싱 실패
         }
         return Optional.empty();
-    }
-
-    /**
-     * 닉네임 사용 가능 여부 확인
-     */
-    public boolean isNicknameAvailable(String nickname) {
-        return !userRepository.existsByNickname(nickname);
-    }
-
-    /**
-     * 이메일 사용 가능 여부 확인
-     */
-    public boolean isEmailAvailable(String email) {
-        return !userRepository.existsByEmail(email);
-    }
-
-    /**
-     * 이메일로 사용자 조회 (User 반환, 없으면 예외)
-     */
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + email));
-    }
-
-    /**
-     * ID로 사용자 조회 (User 반환, 없으면 예외)
-     */
-    public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다: " + id));
-    }
-
-    /**
-     * 이메일로 사용자 조회 (Optional 반환) - JWT Controller용
-     */
-    public Optional<User> findByEmailOptional(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    /**
-     * ID로 사용자 조회 (Optional 반환) - JWT Controller용
-     */
-    public Optional<User> findByIdOptional(Long id) {
-        return userRepository.findById(id);
     }
 }

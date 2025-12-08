@@ -35,18 +35,21 @@ public class PostRes {
     private String contents;
 
     private String author;
+    private Long userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long likeCount;
     private Long viewCount;
     private Long commentCount;
     private String commentContents;
+    private String authorImage;
+    private Boolean isLiked; // 현재 사용자가 좋아요를 눌렀는지 여부
 
     /** 새 이미지 URL 리스트 (기존 이미지 전부 교체됨) */
     private List<String> imageUrls;
     private List<CommentRes> comments;
 
-    public static PostRes of(Board board, BoardStats stats, List<CommentRes> comments) {
+    public static PostRes of(Board board, BoardStats stats, List<CommentRes> comments, Boolean isLiked) {
         List<String> imageUrls = null;
 
         // 이미지 URL 목록 변환
@@ -61,11 +64,14 @@ public class PostRes {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .author(board.getAuthor().getNickname())
+                .userId(board.getAuthor().getUserId())
+                .authorImage(board.getAuthor().getImage())
                 .createdAt(board.getCreatedAt())
                 .updatedAt(board.getUpdatedAt())
                 .likeCount(stats != null ? stats.getLikeCount() : 0L)
-                .commentCount(stats != null ? stats.getCommentCount() : 0L)
+                .commentCount(comments != null ? (long) comments.size() : 0L) // 실제 댓글 수 사용
                 .viewCount(stats != null ? stats.getViewCount() : 0L)
+                .isLiked(isLiked != null ? isLiked : false) // 로그인하지 않은 경우 false
                 .imageUrls(imageUrls)
                 .comments(comments)
                 .build();

@@ -26,7 +26,7 @@ public class QBoardImage extends EntityPathBase<BoardImage> {
 
     public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
-    public final NumberPath<Long> imageId = createNumber("imageId", Long.class);
+    public final NumberPath<Integer> imageId = createNumber("imageId", Integer.class);
 
     public final StringPath imageUrl = createString("imageUrl");
 
