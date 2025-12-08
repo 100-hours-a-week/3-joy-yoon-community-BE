@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
   <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
@@ -9,6 +10,16 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+=======
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/community" />
+        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/community" />
+>>>>>>> df5ed9a5736c43b86c3065bba452a67c99c0e8cb
           </set>
         </option>
       </GradleProjectSettings>

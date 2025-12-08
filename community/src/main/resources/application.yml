@@ -1,0 +1,45 @@
+jwt:
+  secret: bXlTdXBlclNlY3JldEtleTEyMyE=
+  access-token-expiration: 900000
+  refresh-token-expiration: 604800000
+
+spring:
+  # 세션 설정
+  session:
+    store-type: redis # 프로덕션은 redis 사용 권장, 개발환경은 none
+    timeout: 30m
+  # 쿠키 설정
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        http-only: true
+        secure: false # 프로덕션에서는 true (HTTPS)
+        same-site: lax # CSRF 방지
+        max-age: 30m
+        path: /
+
+  thymeleaf:
+    prefix: classpath:templates/thymeleaf/
+    check-template-location: true
+    suffix : .html
+    mode: HTML
+    cache: false # default true, 개발 시에는 false로 두는 것이 좋음
+    enabled: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/COMMUNITY_DB?serverTimezone=UTC&useSSL=false
+    username: root
+    password: kakaotech!234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none   # ?? ??? create / create-drop / update ? ??
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
