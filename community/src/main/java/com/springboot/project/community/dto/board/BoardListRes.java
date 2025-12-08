@@ -18,6 +18,7 @@ public class BoardListRes {
     private Long id;
     private String title;
     private String author;
+    private String authorImage; // 작성자 프로필 이미지
     private String contents;
     private Long likes;
     private Long comments;
@@ -31,10 +32,11 @@ public class BoardListRes {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .author(board.getAuthor().getNickname()) // User의 필드명에 맞게 수정
+                .authorImage(board.getAuthor().getImage()) // 작성자 프로필 이미지
                 .createdAt(board.getCreatedAt())
-                .like_count(stats != null ? stats.getLikeCount() : 0L)
-                .comment_count(stats != null ? stats.getCommentCount() : 0L)
-                .view_count(stats != null ? stats.getViewCount() : 0L)
+                .likes(stats != null ? stats.getLikeCount() : 0L)
+                .comments(stats != null ? stats.getCommentCount() : 0L)
+                .views(stats != null ? stats.getViewCount() : 0L)
                 .build();
     }
 }

@@ -1,12 +1,10 @@
 package com.springboot.project.community.entity;
 
 import jakarta.persistence.Entity;
-
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
-
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
@@ -61,4 +59,9 @@ public class BoardStats {
     @Builder.Default
     @Column(name = "comment_count", nullable = false)
     private Long commentCount = 0L;
+
+    public void setBoard(Board board) {
+        this.board = board;
+        this.post_id = board.post_id();
+    }
 }

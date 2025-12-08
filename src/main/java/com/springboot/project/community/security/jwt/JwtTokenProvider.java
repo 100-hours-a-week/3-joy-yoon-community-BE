@@ -42,7 +42,7 @@ public class JwtTokenProvider {
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
 
-        // secretKey 초기화 추가
+        // ✅ secretKey 초기화 추가
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -71,18 +71,20 @@ public class JwtTokenProvider {
      * - 긴 유효기간 (7일)
      * - HttpOnly 쿠키 저장
      */
-    public String createRefreshToken(Long userId) {
+    public String createRefreshToken(Long userId, String email) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
-                .setSubject(userId.toString())
-                .claim("type", "refresh")
+                .setSubject(userId.toString())   // user 식별
+                .claim("email", email)           // 이메일 포함 (선택)
+                .claim("type", "refresh")        // refresh 토큰임을 명시
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     /**
      * 토큰에서 사용자 ID 추출
@@ -154,7 +156,7 @@ public class JwtTokenProvider {
                 .claim("roles", roles)  // 권한 정보 추가
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(secretKey, SignatureAlgorithm.HS256)  // key → secretKey로 변경
+                .signWith(secretKey, SignatureAlgorithm.HS256)  // ✅ key → secretKey로 변경
                 .compact();
     }
 

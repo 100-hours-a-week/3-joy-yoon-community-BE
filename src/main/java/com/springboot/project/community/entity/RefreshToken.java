@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * - 보안을 위해 토큰 재사용 방지
  */
 @Entity
-@Table(name = "REFRESH_TOKENS")
+@Table(name = "refresh_tokens")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -26,26 +26,19 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "token_id", columnDefinition = "BIGINT UNSIGNED")
-    private Long tokenId;
+    private Long id;
 
-    @Column(name = "user_id", nullable = false, columnDefinition = "INT UNSIGNED")
+    @Column(nullable = false, unique = true)
     private Long userId;
 
-    @Column(nullable = false, length = 500, unique = true)
+    @Column(nullable = false, length = 500)
     private String token;
 
-    @Column(name = "expires_at", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime expiresAt;
 
-    @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "user_agent", length = 255)
-    private String userAgent;
-
-    @Column(name = "ip_address", length = 45)
-    private String ipAddress;
 
     @PrePersist
     protected void onCreate() {

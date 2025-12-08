@@ -27,7 +27,10 @@ public class PostCreateReq {
     @NotBlank(message = "내용은 필수입니다.")
     private String contents;
 
-    /** 이미지 URL 리스트 (1~10장) */
+    /** 이미지 URL (단수) */
+    private String image;
+    
+    /** 이미지 URL 리스트 (복수) */
     private List<String> imageUrls;
 
     private LocalDateTime createdAt;

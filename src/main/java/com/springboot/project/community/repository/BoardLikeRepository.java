@@ -12,10 +12,4 @@ import org.springframework.stereotype.Repository;
 public interface BoardLikeRepository extends JpaRepository<BoardLike, BoardLikeId> {
     long countByBoard_PostIdAndDeletedFalse(Long postId);
     boolean existsByLikeIdAndDeletedFalse(BoardLikeId likeId);
-    void deleteByBoard_PostId(Long postId);
-    
-    /**
-     * 특정 사용자가 특정 게시글에 좋아요를 눌렀는지 확인 (삭제되지 않은 것만)
-     */
-    boolean existsByLikeId_UserIdAndLikeId_PostIdAndDeletedFalse(Long userId, Long postId);
 }

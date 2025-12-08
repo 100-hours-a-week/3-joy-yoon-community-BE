@@ -22,6 +22,7 @@ import java.util.List;
 @Builder
 public class PostUpdateReq {
     private Long postId;
+    private Long userId;
 
     @NotBlank(message = "제목은 반드시 입력해야 합니다.")
     private String title;

@@ -10,7 +10,7 @@ import java.util.List;
  *  게시글 이미지 Repository
  */
 @Repository
-public interface BoardImageRepository extends JpaRepository<BoardImage, Integer> {
+public interface BoardImageRepository extends JpaRepository<BoardImage, Long> {
+//    void deleteAllByBoard_PostId(Long postId);
     List<BoardImage> findByBoard_PostIdOrderBySortOrderAsc(Long postId);
-    void deleteByBoard_PostId(Long postId);
 }
