@@ -3,3 +3,8 @@ build/
 .idea/
 **/*.jar
 .env
+
+# CI/CD 파일 제외
+.github/workflows/ci-cd.yml
+.github/workflows/*.yml
+.github/workflows/*.yaml

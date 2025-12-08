@@ -103,7 +103,7 @@
       <recent name="com.springboot.project.community.controller.auth" />
     </key>
   </component>
-  <component name="RunManager" selected="애플리케이션.CommunityApplication">
+  <component name="RunManager" selected="Gradle.community [bootJar]">
     <configuration name="CommunityApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.springboot.project.community.CommunityApplication" />
       <module name="community.main" />
