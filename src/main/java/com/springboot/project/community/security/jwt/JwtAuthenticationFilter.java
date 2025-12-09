@@ -16,15 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * JWT 인증 필터
- *
- * [향후 JWT 전환 시 사용]
- * 1. Authorization 헤더에서 Access Token 추출
- * 2. Access Token 검증
- * 3. 검증 성공 시 SecurityContext에 인증 정보 저장
- */
-
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -40,19 +31,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+        
+        if (path.equals("/api/auth") ||
+            path.startsWith("/api/auth/signup") || 
+            path.startsWith("/api/auth/login") ||
+            path.startsWith("/api/auth/refresh") ||
+            path.startsWith("/api/auth/check") ||
+            path.startsWith("/api/auth/check-email") ||
+            path.startsWith("/api/auth/check-nickname") ||
+            (method.equals("GET") && path.startsWith("/api/boards"))) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String token = getJwtFromRequest(request);
 
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Long userId = jwtTokenProvider.getUserIdFromToken(token);
 
-                // JWT에서 권한 추출
                 List<String> roles = jwtTokenProvider.getRoles(token);
                 List<SimpleGrantedAuthority> authorities = roles.stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-                // 권한이 없으면 기본 권한 부여
                 if (authorities.isEmpty()) {
                     authorities = Collections.singletonList(
                             new SimpleGrantedAuthority("ROLE_USER")

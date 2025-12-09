@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * - 좋아요 토글 (누르면 좋아요 / 다시 누르면 취소)
  */
 @RestController
-@RequestMapping("/api/v1/likes")
+@RequestMapping("/api/boards")
 @RequiredArgsConstructor
 public class LikeController {
 
@@ -23,9 +23,9 @@ public class LikeController {
     /**
      * 좋아요 토글 API
      */
-    @PostMapping("/{postId}")
+    @PostMapping("/{postId}/likes")
     public LikeToggleRes toggleLike(
-            @AuthenticationPrincipal(expression = "user.userId") Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId) {
         return likeService.toggle(userId, postId);
     }

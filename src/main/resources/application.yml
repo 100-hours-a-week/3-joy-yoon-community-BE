@@ -3,10 +3,13 @@ jwt:
   access-token-expiration: 900000
   refresh-token-expiration: 604800000
 
+server:
+  port: 8080
+
 spring:
   # 세션 설정
   session:
-    store-type: redis # 프로덕션은 redis 사용 권장, 개발환경은 none
+    store-type: none # 개발환경: none, 프로덕션: redis (Redis 의존성 필요)
     timeout: 30m
   # 쿠키 설정
   servlet:

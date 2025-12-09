@@ -1,6 +1,8 @@
 package com.springboot.project.community.controller.auth;
 
 import com.springboot.project.community.dto.auth.UserLoginReq;
+import com.springboot.project.community.dto.auth.UserRes;
+import com.springboot.project.community.dto.auth.UserSignupReq;
 import com.springboot.project.community.entity.User;
 import com.springboot.project.community.security.jwt.JwtTokenProvider;
 import com.springboot.project.community.security.jwt.TokenService;
@@ -34,6 +36,37 @@ public class JwtAuthController {
     private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
 
+
+    /**
+     * 회원가입
+     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> signup(
+            @Valid @RequestBody UserSignupReq signupRequest) {
+        try {
+            log.info("회원가입 요청: email={}, nickname={}", signupRequest.getEmail(), signupRequest.getNickname());
+            
+            UserRes userRes = userService.signup(signupRequest);
+            
+            log.info("회원가입 성공: userId={}", userRes.getUserId());
+
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", userRes.getUserId());
+            userMap.put("email", userRes.getEmail());
+            userMap.put("nickname", userRes.getNickname());
+            userMap.put("image", userRes.getImage()); // 프로필 이미지 추가
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "회원가입 성공");
+            result.put("user", userMap);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("회원가입 실패", e);
+            throw e;
+        }
+    }
     /**
      * 로그인
      */
@@ -53,16 +86,18 @@ public class JwtAuthController {
         Map<String, String> tokens = tokenService.issueTokens(user, response);
 
         // 3. 응답
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getUserId());
+        userMap.put("email", user.getEmail());
+        userMap.put("nickname", user.getNickname());
+        userMap.put("image", user.getImage()); // 프로필 이미지 추가
+        
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("message", "로그인 성공");
         result.put("accessToken", tokens.get("accessToken"));
         result.put("tokenType", tokens.get("tokenType"));
-        result.put("user", Map.of(
-                "id", user.getUserId(),
-                "email", user.getEmail(),
-                "nickname", user.getNickname()
-        ));
+        result.put("user", userMap);
 
         return ResponseEntity.ok(result);
     }
@@ -120,13 +155,15 @@ public class JwtAuthController {
         // findById는 이미 User 객체를 반환 (없으면 예외 발생)
         User user = userService.findById(userId);
 
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getUserId());
+        userMap.put("email", user.getEmail());
+        userMap.put("nickname", user.getNickname());
+        userMap.put("image", user.getImage()); // 프로필 이미지 추가
+        
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
-        result.put("user", Map.of(
-                "id", user.getUserId(),
-                "email", user.getEmail(),
-                "nickname", user.getNickname()
-        ));
+        result.put("user", userMap);
 
         return ResponseEntity.ok(result);
     }
@@ -144,6 +181,17 @@ public class JwtAuthController {
         Map<String, Object> result = new HashMap<>();
         result.put("isValid", isValid);
 
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 테스트 엔드포인트 - 서버 응답 확인용
+     */
+    @GetMapping("/test")
+    public ResponseEntity<Map<String, Object>> test() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "서버가 정상 작동 중입니다");
         return ResponseEntity.ok(result);
     }
 

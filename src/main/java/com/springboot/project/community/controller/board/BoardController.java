@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/v1/boards")
+@RequestMapping("/api/boards")
 @RequiredArgsConstructor
 public class BoardController {
 
@@ -26,7 +27,7 @@ public class BoardController {
      */
     @PostMapping
     public PostRes createPost(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody @Valid PostCreateReq req) {
         return boardService.create(userId, req);
     }
@@ -36,12 +37,22 @@ public class BoardController {
      */
     @PutMapping("/{postId}")
     public PostUpdateReq updatePost(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @RequestBody PostUpdateReq req) {
         return boardService.update(userId, postId, req);
     }
 
+    /**
+     * 게시글 삭제
+     */
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<PostDeleteRes> deletePost(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long postId) {
+        PostDeleteRes result = boardService.delete(userId, postId);
+        return ResponseEntity.ok(result);
+    }
     /**
      * 게시글 목록 조회
      */

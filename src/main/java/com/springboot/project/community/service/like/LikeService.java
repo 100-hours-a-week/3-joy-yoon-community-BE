@@ -10,9 +10,10 @@ import com.springboot.project.community.repository.BoardLikeRepository;
 import com.springboot.project.community.repository.BoardRepository;
 import com.springboot.project.community.repository.BoardStatsRepository;
 import com.springboot.project.community.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 /**
  * 좋아요 토글 서비스
@@ -27,7 +28,7 @@ public class LikeService {
     private final BoardLikeRepository boardLikeRepository;
     private final BoardStatsRepository boardStatsRepository;
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public LikeToggleRes toggle(Long userId, Long postId) {
         // 유저/게시글 검증
         User user = userRepository.findById(userId)
@@ -43,7 +44,7 @@ public class LikeService {
         boolean liked;
 
         if (existing == null) {
-            // 새 좋아요 (빌더 대신 setter로 안전 생성)
+            // 새 좋아요 생성
             BoardLike newLike = new BoardLike();
             newLike.setLikeId(likeId);
             newLike.setUser(user);
@@ -52,29 +53,47 @@ public class LikeService {
             boardLikeRepository.save(newLike);
             liked = true;
         } else {
-            // 토글 (boolean 게터는 isDeleted())
-            existing.setDeleted(!existing.isDeleted());
+            // 기존 좋아요 상태 확인
+            boolean wasDeleted = existing.isDeleted();
+            // 토글
+            existing.setDeleted(!wasDeleted);
             boardLikeRepository.save(existing);
             liked = !existing.isDeleted();
         }
 
-        // 통계 갱신 (BoardStats의 count가 INT라면 Integer로 취급)
+        // BoardStats 조회 또는 생성
         BoardStats stats = boardStatsRepository.findById(postId)
-                .orElse(BoardStats.builder()
-                        .postId(postId)
-                        .viewCount(0L) // INT면 Integer 0
-                        .likeCount(0L)
-                        .commentCount(0L)
-                        .build());
+                .orElseGet(() -> {
+                    BoardStats newStats = BoardStats.builder()
+                            .postId(postId)
+                            .board(board)  // Board 엔티티 설정 (필수)
+                            .viewCount(0L)
+                            .likeCount(0L)
+                            .commentCount(0L)
+                            .build();
+                    return boardStatsRepository.save(newStats);
+                });
 
-        Long newLikeCount = stats.getLikeCount() + (liked ? 1 : -1);
-        stats.setLikeCount(Math.max(newLikeCount, 0L));
-        boardStatsRepository.save(stats);
+        // 벌크 업데이트로 좋아요 수 증가/감소 (동시성 안전)
+        int updated;
+        if (liked) {
+            // 좋아요 증가
+            updated = boardStatsRepository.incrementLikeCount(postId);
+            if (updated > 0) {
+                stats.setLikeCount(stats.getLikeCount() + 1);
+            }
+        } else {
+            // 좋아요 감소
+            updated = boardStatsRepository.decrementLikeCount(postId);
+            if (updated > 0) {
+                stats.setLikeCount(Math.max(stats.getLikeCount() - 1, 0L));
+            }
+        }
 
         // 응답 (DTO가 Long-count면 변환)
         return LikeToggleRes.builder()
                 .postId(postId)
-                .likeCount((long) stats.getLikeCount()) // Integer → Long 변환
+                .likeCount(stats.getLikeCount())
                 .liked(liked)
                 .build();
     }

@@ -49,25 +49,26 @@ public class PostRes {
     private List<String> imageUrls;
     private List<CommentRes> comments;
 
-    public static PostRes of(Board board, BoardStats stats, List<CommentRes> comments, Boolean isLiked) {
-        List<String> imageUrls = null;
-
-        // 이미지 URL 목록 변환
-        if (board.getImages() != null && !board.getImages().isEmpty()) {
-            imageUrls = board.getImages().stream()
-                    .map(BoardImage::getImageUrl)
-                    .collect(Collectors.toList());
-        }
-
+    public static PostRes of(Board board, BoardStats stats, List<String> imageUrls, List<CommentRes> comments, Boolean isLiked) {
+        // Board 엔티티의 필드들을 트랜잭션 내에서 미리 가져옴 (LAZY 로딩 방지)
+        Long postId = board.getPostId();
+        String title = board.getTitle();
+        String contents = board.getContents();
+        String author = board.getAuthor().getNickname();
+        Long userId = board.getAuthor().getUserId();
+        String authorImage = board.getAuthor().getImage();
+        LocalDateTime createdAt = board.getCreatedAt();
+        LocalDateTime updatedAt = board.getUpdatedAt();
+        
         return PostRes.builder()
-                .postId(board.getPostId())
-                .title(board.getTitle())
-                .contents(board.getContents())
-                .author(board.getAuthor().getNickname())
-                .userId(board.getAuthor().getUserId())
-                .authorImage(board.getAuthor().getImage())
-                .createdAt(board.getCreatedAt())
-                .updatedAt(board.getUpdatedAt())
+                .postId(postId)
+                .title(title)
+                .contents(contents)
+                .author(author)
+                .userId(userId)
+                .authorImage(authorImage)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
                 .likeCount(stats != null ? stats.getLikeCount() : 0L)
                 .commentCount(comments != null ? (long) comments.size() : 0L) // 실제 댓글 수 사용
                 .viewCount(stats != null ? stats.getViewCount() : 0L)

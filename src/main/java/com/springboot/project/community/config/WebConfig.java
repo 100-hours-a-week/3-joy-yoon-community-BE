@@ -34,15 +34,12 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/auth/check-email",
                         "/api/auth/check-nickname",
                         // 인증이 필요한 API는 JWT 필터가 처리하도록 제외
-                        "/api/auth/update",
                         "/api/auth/change-password",
                         "/api/auth/me",
                         "/api/auth/logout",
                         "/api/auth/withdraw",
                         // 게시판 조회만 비로그인 허용 (GET만)
                         // POST/PUT/DELETE는 인터셉터가 JWT 토큰을 체크함
-                        "/api/boards",
-                        "/api/boards/**",
                         // 에러 페이지
                         "/error"
                 );

@@ -10,6 +10,7 @@ import com.springboot.project.community.service.auth.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ import java.util.Map;
  */
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -34,7 +35,7 @@ public class AuthController {
     /**
      *  회원가입 기능
      */
-    @PostMapping
+    @PostMapping("/signup")
     public User signup(@RequestBody @Valid UserSignupReq req) {
         // 이메일 중복 검사
         if (userRepository.findByEmail(req.getEmail()).isPresent()) {
@@ -45,11 +46,16 @@ public class AuthController {
         String encodedPassword = passwordEncoder.encode(req.getPassword());
 
         // User 엔티티 생성
+        // 프로필 이미지 처리 (빈 문자열이면 null로 저장)
+        String image = (req.getImage() != null && !req.getImage().isBlank()) 
+                ? req.getImage() 
+                : null;
+        
         User user = User.builder()
                 .email(req.getEmail())
                 .password(encodedPassword)
                 .nickname(req.getNickname())
-                .image(req.getImage())
+                .image(image)
                 .useYn(false)
                 .build();
 
@@ -60,22 +66,31 @@ public class AuthController {
     /**
      * 회원 정보 수정
      */
-    @PutMapping("/{userId}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable Long userId,
-            @RequestBody UserUpdateReq req) {
+    @PutMapping("/update")
+    public ResponseEntity<UserRes> updateUser(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid UserUpdateReq req) {
 
         User updatedUser = userService.updateUser(userId, req);
-        return ResponseEntity.ok(updatedUser);
+        
+        // User 엔티티를 UserRes DTO로 변환 (비밀번호 제외)
+        UserRes userRes = UserRes.builder()
+                .userId(updatedUser.getUserId())
+                .email(updatedUser.getEmail())
+                .nickname(updatedUser.getNickname())
+                .image(updatedUser.getImage())
+                .build();
+        
+        return ResponseEntity.ok(userRes);
     }
 
-    /**
-     * 로그인
-     */
-    @PostMapping("/login")
-    public UserRes login(@RequestBody UserLoginReq req) {
-        return userService.login(req);  //  반환 타입 일치 (UserRes)
-    }
+    // /**
+    //  * 로그인
+    //  */
+    // @PostMapping("/login")
+    // public UserRes login(@RequestBody UserLoginReq req) {
+    //     return userService.login(req);  //  반환 타입 일치 (UserRes)
+    // }
 
     /*
     * 닉네임 중복 검사

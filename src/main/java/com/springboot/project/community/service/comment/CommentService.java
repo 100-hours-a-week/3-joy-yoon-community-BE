@@ -1,17 +1,15 @@
 package com.springboot.project.community.service.comment;
 
-import com.springboot.project.community.dto.board.PostUpdateReq;
 import com.springboot.project.community.dto.comment.*;
 import com.springboot.project.community.entity.*;
 import com.springboot.project.community.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-/** 댓글 서비스 */
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -21,10 +19,13 @@ public class CommentService {
     private final UserRepository userRepository;
     private final BoardStatsRepository boardStatsRepository;
 
-    @Transactional
-    public CommentCreateReq add(Long userId, Long postId, CommentCreateReq req) {
-        User user = userRepository.findById(userId).orElseThrow();
-        Board board = boardRepository.findById(req.getPostId()).orElseThrow();
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public CommentRes add(Long userId, Long postId, CommentCreateReq req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
+        
+        Board board = boardRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. postId=" + postId));
 
         Comment comment = Comment.builder()
                 .author(user)
@@ -33,18 +34,78 @@ public class CommentService {
                 .build();
         commentRepository.save(comment);
 
-        BoardStats stats = boardStatsRepository.findById(board.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException("게시글 통계 정보가 없습니다."));
-        stats.setCommentCount(stats.getCommentCount() + 1);
-        boardStatsRepository.save(stats); // 명시적으로 저장
+        // BoardStats가 없으면 생성
+        if (!boardStatsRepository.findById(board.getPostId()).isPresent()) {
+            BoardStats newStats = BoardStats.builder()
+                    .postId(board.getPostId())
+                    .board(board)  // Board 엔티티 설정 (필수)
+                    .likeCount(0L)
+                    .commentCount(0L)
+                    .viewCount(0L)
+                    .build();
+            boardStatsRepository.save(newStats);
+        }
 
-        // 응답 DTO 반환
-        return CommentCreateReq.builder()
-                .commentId(comment.getCommentId())
-                .postId(board.getPostId())
-                .author(user.getNickname())
-                .contents(comment.getContents())
-                .createdAt(comment.getCreatedAt())
+        // 벌크 업데이트로 댓글 수 증가 (동시성 안전)
+        boardStatsRepository.incrementCommentCount(board.getPostId());
+
+        if (comment.getAuthor() != null) {
+            comment.getAuthor().getImage();
+        }
+
+        return CommentRes.from(comment);
+    }
+
+    @Transactional
+    public CommentRes update(Long userId, Long postId, Long commentId, CommentUpdateReq req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
+
+        Board board = boardRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. postId=" + postId));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다. commentId=" + commentId));
+
+        if (!comment.getAuthor().getUserId().equals(userId)) {
+            throw new RuntimeException("본인이 작성한 댓글만 수정할 수 있습니다.");
+        }
+
+        comment.setContents(req.getContents());
+        commentRepository.save(comment);
+
+        if (comment.getAuthor() != null) {
+            comment.getAuthor().getImage();
+        }
+
+        return CommentRes.from(comment);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public CommentDeleteRes delete(Long userId, Long postId, Long commentId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
+
+        Board board = boardRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. postId=" + postId));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다. commentId=" + commentId));
+
+        if (!comment.getAuthor().getUserId().equals(userId)) {
+            throw new RuntimeException("본인이 작성한 댓글만 삭제할 수 있습니다.");
+        }
+
+        commentRepository.delete(comment);
+
+        // 벌크 업데이트로 댓글 수 감소 (동시성 안전, 0 이하로 내려가지 않음)
+        boardStatsRepository.decrementCommentCount(postId);
+
+        return CommentDeleteRes.builder()
+                .commentId(commentId)
+                .postId(postId)
+                .userId(userId)
+                .message("댓글이 삭제되었습니다.")
                 .build();
     }
 
@@ -52,48 +113,12 @@ public class CommentService {
     public List<CommentRes> findByPost(Long postId) {
         return commentRepository.findByBoard_PostIdOrderByCreatedAtAsc(postId)
                 .stream()
-                .map(c -> CommentRes.builder()
-                        .commentId(c.getCommentId())
-                        .postId(postId)
-                        .author(c.getAuthor() != null ? c.getAuthor().getNickname() : "(탈퇴회원)")
-                        .content(c.getContents())
-                        .createdAt(c.getCreatedAt())
-                        .build())
+                .peek(comment -> {
+                    if (comment.getAuthor() != null) {
+                        comment.getAuthor().getImage();
+                    }
+                })
+                .map(CommentRes::from)
                 .toList();
-    }
-
-
-    /**
-     * 게시글 수정
-     */
-    @Transactional
-    public CommentUpdateReq update(Long userId, Long postId, Long commentId, CommentUpdateReq req) {
-
-        // 사용자 검증
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
-
-        // 게시글 검증
-        Board board = boardRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다. postId=" + postId));
-
-        // 댓글 검증
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다. commentId=" + commentId));
-
-        // 작성자 검증
-        if (!comment.getAuthor().getUserId().equals(userId)) {
-            throw new RuntimeException("본인이 작성한 댓글만 수정할 수 있습니다.");
-        }
-
-        // 수정 내용 반영
-        comment.setContents(req.getContents());
-        comment.setUpdatedAt(LocalDateTime.now());
-
-        // 저장 (JPA 자동 update)
-        commentRepository.save(comment);
-
-        // DTO로 변환하여 반환
-        return CommentUpdateReq.from(comment);
     }
 }

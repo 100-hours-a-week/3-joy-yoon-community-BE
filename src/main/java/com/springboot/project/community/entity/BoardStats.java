@@ -10,6 +10,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Version;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -60,8 +61,12 @@ public class BoardStats {
     @Column(name = "comment_count", nullable = false)
     private Long commentCount = 0L;
 
+    @Version
+    @Column(name = "version", nullable = false, columnDefinition = "BIGINT UNSIGNED DEFAULT 0")
+    private Long version = 0L;
+
     public void setBoard(Board board) {
         this.board = board;
-        this.post_id = board.post_id();
+        this.postId = board.getPostId();
     }
 }

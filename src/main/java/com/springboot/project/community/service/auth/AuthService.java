@@ -29,7 +29,6 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CookieUtil cookieUtil;
 
     // 세션 관련 상수
     private static final String USER_SESSION_KEY = "loginUser";
@@ -71,7 +70,7 @@ public class AuthService {
      */
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         invalidateSession(request);
-        cookieUtil.deleteCookie(response, REMEMBER_ME_COOKIE);
+        CookieUtil.deleteCookie(response, REMEMBER_ME_COOKIE);
     }
 
     /**
@@ -137,7 +136,7 @@ public class AuthService {
      */
     private void setRememberMeCookie(User user, HttpServletResponse response) {
         String token = generateRememberMeToken(user);
-        Cookie cookie = cookieUtil.createCookie(REMEMBER_ME_COOKIE, token, REMEMBER_ME_DURATION);
+        Cookie cookie = CookieUtil.createCookie(REMEMBER_ME_COOKIE, token, REMEMBER_ME_DURATION, true);
         response.addCookie(cookie);
     }
 
@@ -152,8 +151,11 @@ public class AuthService {
      * Remember Me 토큰으로 자동 로그인
      */
     public boolean autoLoginByRememberMe(HttpServletRequest request) {
-        return cookieUtil.getCookieValue(request, REMEMBER_ME_COOKIE)
-                .flatMap(this::parseRememberMeToken)
+        String cookieValue = CookieUtil.getCookieValue(request, REMEMBER_ME_COOKIE);
+        if (cookieValue == null) {
+            return false;
+        }
+        return parseRememberMeToken(cookieValue)
                 .map(userId -> {
                     User user = userRepository.findById(userId).orElse(null);
                     if (user != null) {

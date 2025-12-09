@@ -33,20 +33,26 @@ public class UserService {
             throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
         }
 
+        // 프로필 이미지 처리 (빈 문자열이면 null로 저장)
+        String image = (req.getImage() != null && !req.getImage().isBlank()) 
+                ? req.getImage() 
+                : null;
+        
         User user = User.builder()
                 .email(req.getEmail())
                 .password(passwordEncoder.encode(req.getPassword()))
                 .nickname(req.getNickname())
-                .image(req.getImage())
+                .image(image)
                 .useYn(false)
                 .build();
 
-        userRepository.save(user);
+        user = userRepository.saveAndFlush(user); // 저장 후 즉시 DB에 반영하여 ID 생성 보장
 
         return UserRes.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
+                .image(user.getImage())
                 .build();
     }
 
@@ -78,15 +84,32 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
+        // 닉네임 수정 (중복 체크)
         if (req.getNickname() != null && !req.getNickname().isBlank()) {
+            // 현재 닉네임과 다를 때만 중복 체크
+            if (!user.getNickname().equals(req.getNickname()) && userRepository.existsByNickname(req.getNickname())) {
+                throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+            }
             user.setNickname(req.getNickname());
         }
 
+        // 비밀번호 수정
         if (req.getPassword() != null && !req.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(req.getPassword()));
         }
 
-        return user;
+        // 프로필 이미지 수정
+        if (req.getImage() != null) {
+            // 빈 문자열이면 null로 설정 (이미지 삭제)
+            if (req.getImage().isBlank()) {
+                user.setImage(null);
+            } else {
+                user.setImage(req.getImage());
+            }
+        }
+
+        // 저장 (JPA 영속성 컨텍스트에 의해 자동 update)
+        return userRepository.save(user);
     }
 
     /**

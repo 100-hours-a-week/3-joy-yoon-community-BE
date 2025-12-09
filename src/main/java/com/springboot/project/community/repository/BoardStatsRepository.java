@@ -7,8 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BoardStatsRepository extends JpaRepository<BoardStats, Long> {
+
+    List<BoardStats> findByPostIdIn(List<Long> postIds);
 
     // 댓글 수 1 증가 (벌크 업데이트. DB에서 직접 값 증가 → 동시성에 안전)
     // clearAutomatically: 벌크 연산 후 영속성 컨텍스트 초기화
@@ -30,4 +34,9 @@ public interface BoardStatsRepository extends JpaRepository<BoardStats, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE BoardStats bs SET bs.likeCount = bs.likeCount - 1 WHERE bs.postId = :postId AND bs.likeCount > 0")
     int decrementLikeCount(@Param("postId") Long postId);
+
+    // 조회수 1 증가 (벌크 업데이트. DB에서 직접 값 증가 → 동시성에 안전)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE BoardStats bs SET bs.viewCount = bs.viewCount + 1 WHERE bs.postId = :postId")
+    int incrementViewCount(@Param("postId") Long postId);
 }
